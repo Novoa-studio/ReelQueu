@@ -26,14 +26,26 @@ depuis Safari, sur le même réseau Wi-Fi.
 | Phase | Contenu | État |
 | --- | --- | --- |
 | 1 | Projet, architecture, design system, navigation, écrans (données de démo locales) | ✅ |
-| 2 | Supabase : authentification, persistance, RLS, migrations | à venir |
+| 2 | Supabase : authentification, persistance, RLS, migrations, cache hors ligne | ✅ (migration à appliquer) |
 | 3 | Métadonnées (titre, miniature), partage depuis iOS, ouverture | à venir |
 | 4 | Retour dans l'app → statut « Vue » automatique, cas limites | à venir |
 | 5 | PWA : manifest, service worker, hors ligne, installation iOS | à venir |
 
-En phase 1, les données vivent dans le `localStorage` de l'appareil et des données de
-démonstration fictives sont chargées au premier lancement (bouton « Partir de zéro »
-pour les effacer).
+Sans variables Supabase, l'app tourne en **mode local** : données dans le `localStorage`
+et données de démonstration au premier lancement (bouton « Partir de zéro »).
+
+## Supabase
+
+1. Copier `.env.example` en `.env.local` et renseigner l'URL et la clé publique du projet.
+2. Appliquer le schéma : Supabase › SQL Editor › coller
+   [`supabase/migrations/20261125120000_initial_schema.sql`](supabase/migrations/20261125120000_initial_schema.sql) › Run
+   (script rejouable).
+3. Authentication › URL Configuration : *Site URL* = URL de production, *Redirect URLs* =
+   `https://<prod>/**` et `http://localhost:3000/**`.
+4. Sur Vercel, les mêmes variables `NEXT_PUBLIC_SUPABASE_*` doivent exister.
+
+Authentification par e-mail et mot de passe (et non lien magique) : sur iPhone, une PWA
+installée ne partage pas son stockage avec Safari, où s'ouvrent les liens reçus par e-mail.
 
 ## Stack
 

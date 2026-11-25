@@ -5,14 +5,19 @@ export interface LibrarySnapshot {
   collections: Collection[];
   /** Vrai tant que les données de démonstration n'ont pas été effacées (dépôt local). */
   demo?: boolean;
+  /** Vrai si les données viennent du cache local faute de réseau. */
+  stale?: boolean;
 }
 
 /**
  * Contrat de persistance. Le store applique les changements de façon
  * optimiste puis délègue ici ; en cas d'échec il restaure l'état précédent.
  *
- * Phase 1 : LocalRepository (localStorage, données de démonstration).
- * Phase 2 : SupabaseRepository (même contrat, RLS côté serveur).
+ * - LocalRepository    : localStorage (mode sans Supabase, données de démo)
+ * - SupabaseRepository : Postgres + RLS, cache local pour le hors-ligne
+ *
+ * Erreurs normalisées (Error.message) : "offline", "duplicate_video",
+ * "duplicate_collection", "storage_full", "not_signed_in".
  */
 export interface LibraryRepository {
   readonly kind: "local" | "supabase";
@@ -28,4 +33,6 @@ export interface LibraryRepository {
   deleteCollection(id: string): Promise<void>;
   /** Vide toutes les données de l'utilisateur. */
   clear(): Promise<void>;
+  /** Met à jour le cache hors-ligne après des changements réussis (facultatif). */
+  saveSnapshot?(snapshot: LibrarySnapshot): void;
 }

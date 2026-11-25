@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { TriangleExclamationPoint } from "lucide-react";
 import type { Video } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/common/empty-state";
 import { useLibrary } from "@/lib/store/library";
 import { VideoCard, type CardDateMode } from "./video-card";
@@ -25,7 +26,16 @@ export function VideoList({ videos, empty, dateMode, showStatus }: VideoListProp
       <EmptyState
         icon={TriangleExclamationPoint}
         title="Impossible de charger vos vidéos"
-        description="Rechargez l’application. Vos données ne sont pas perdues."
+        description="Vérifiez votre connexion. Vos données ne sont pas perdues."
+        action={
+          <Button
+            variant="outline"
+            className="rounded-full"
+            onClick={() => void useLibrary.getState().reload()}
+          >
+            Réessayer
+          </Button>
+        }
       />
     );
   }

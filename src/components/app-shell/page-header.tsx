@@ -13,6 +13,8 @@ interface PageHeaderProps {
   children?: ReactNode;
   /** Affiche le raccourci de recherche globale (mobile). */
   showSearch?: boolean;
+  /** Élément placé tout à droite, après la recherche (ex. compte). */
+  trailing?: ReactNode;
   className?: string;
 }
 
@@ -23,6 +25,7 @@ export function PageHeader({
   back,
   children,
   showSearch = true,
+  trailing,
   className,
 }: PageHeaderProps) {
   return (
@@ -62,6 +65,7 @@ export function PageHeader({
               </Link>
             </Button>
           ) : null}
+          {trailing}
         </div>
       </div>
       {children ? <div className="pb-3">{children}</div> : null}
