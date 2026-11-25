@@ -7,7 +7,8 @@ export type SheetData =
   | { type: "add" }
   | { type: "note"; videoId: string }
   | { type: "collections"; videoId: string }
-  | { type: "collection-form"; collectionId?: string };
+  | { type: "collection-form"; collectionId?: string }
+  | { type: "account" };
 
 export type QueueSort = "added_desc" | "added_asc";
 

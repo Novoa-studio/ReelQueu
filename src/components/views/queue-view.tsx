@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/app-shell/page-header";
 import { DemoNotice } from "@/components/common/demo-notice";
 import { EmptyState } from "@/components/common/empty-state";
 import { VideoList } from "@/components/videos/video-list";
+import { AccountButton } from "@/components/auth/account-sheet";
 import { useLibrary } from "@/lib/store/library";
 import { useUI } from "@/lib/store/ui";
 import { pluralize, sortVideos } from "@/lib/videos";
@@ -52,6 +53,7 @@ export function QueueView() {
             )}
           </Button>
         }
+        trailing={<AccountButton className="md:hidden" />}
       />
       <DemoNotice />
       <VideoList

@@ -11,11 +11,19 @@ import { cn } from "@/lib/utils";
  * plateforme. Les CDN des réseaux sociaux expirent leurs URL : l'erreur de
  * chargement bascule silencieusement sur le repli.
  */
+// Miniatures en échec pendant la session : inutile de les redemander à chaque écran.
+const failedThumbnails = new Set<string>();
+
 export function VideoThumbnail({ video, className }: { video: Video; className?: string }) {
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
   const { platformColor } = describeVideo(video);
   const src = video.thumbnail_url;
-  const showImage = Boolean(src) && failedSrc !== src;
+  const showImage = Boolean(src) && failedSrc !== src && !failedThumbnails.has(src ?? "");
+
+  function markFailed(url: string) {
+    failedThumbnails.add(url);
+    setFailedSrc(url);
+  }
 
   return (
     <div
@@ -37,13 +45,13 @@ export function VideoThumbnail({ video, className }: { video: Video; className?:
           loading="lazy"
           decoding="async"
           referrerPolicy="no-referrer"
-          onError={() => setFailedSrc(src)}
+          onError={() => markFailed(src)}
           onLoad={(e) => {
             // YouTube répond par une image grise 120×90 (statut 404) pour une
             // vidéo supprimée ou inexistante : on la traite comme une erreur.
             const img = e.currentTarget;
             if (src.includes("ytimg.com") && img.naturalWidth === 120 && img.naturalHeight === 90) {
-              setFailedSrc(src);
+              markFailed(src);
             }
           }}
           className="size-full object-cover"

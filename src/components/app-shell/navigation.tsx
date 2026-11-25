@@ -5,8 +5,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/store/auth";
 import { useLibrary } from "@/lib/store/library";
 import { useUI } from "@/lib/store/ui";
+import { AccountAvatar } from "@/components/auth/account-sheet";
 import { cn } from "@/lib/utils";
 import { NAV_ITEMS, isActive } from "./nav-items";
 import { Logo } from "./logo";
@@ -97,6 +99,7 @@ export function AddFab() {
 
 function SidebarView({ pathname }: { pathname: string | null }) {
   const openSheet = useUI((s) => s.openSheet);
+  const email = useAuth((s) => s.user?.email ?? null);
   const pendingCount = usePendingCount();
   const searchActive = isActive("/search", pathname);
 
@@ -150,6 +153,17 @@ function SidebarView({ pathname }: { pathname: string | null }) {
           Rechercher
         </Link>
       </nav>
+
+      <button
+        type="button"
+        onClick={() => openSheet({ type: "account" })}
+        className="mt-auto flex items-center gap-2.5 rounded-lg px-2 py-2 text-left text-sm transition-colors hover:bg-muted"
+      >
+        <AccountAvatar email={email} className="size-7 text-xs" />
+        <span className="min-w-0 flex-1 truncate text-muted-foreground">
+          {email ?? "Mode local"}
+        </span>
+      </button>
     </aside>
   );
 }

@@ -11,8 +11,6 @@ import { useLibrary } from "@/lib/store/library";
 import { useSheetOpen, useUI } from "@/lib/store/ui";
 import { extractUrl, parseVideoUrl } from "@/lib/platforms";
 import { describeVideo, findDuplicate, formatRelativeDate } from "@/lib/videos";
-import { createId } from "@/lib/ids";
-import { LOCAL_USER } from "@/lib/data/seed";
 import { markPending } from "@/lib/video-actions";
 import { PlatformBadge } from "./platform-badge";
 
@@ -46,7 +44,7 @@ function AddVideoForm({ onDone }: { onDone: () => void }) {
   const [submitted, setSubmitted] = useState(false);
   const [busy, setBusy] = useState(false);
   const videos = useLibrary((s) => s.videos);
-  const insertVideo = useLibrary((s) => s.insertVideo);
+  const addVideo = useLibrary((s) => s.addVideo);
 
   const parsed = useMemo(() => (value.trim() ? parseVideoUrl(value) : null), [value]);
   const duplicate = parsed?.ok ? findDuplicate(videos, parsed.value.canonicalUrl) : undefined;
@@ -73,28 +71,10 @@ function AddVideoForm({ onDone }: { onDone: () => void }) {
     setSubmitted(true);
     if (!parsed?.ok || duplicate || busy) return;
 
-    const p = parsed.value;
-    const video: Video = {
-      id: createId(),
-      user_id: LOCAL_USER,
-      url: p.url,
-      canonical_url: p.canonicalUrl,
-      platform: p.platform,
-      title: null,
-      thumbnail_url: p.thumbnailUrl,
-      creator: p.creator,
-      status: "pending",
-      is_favorite: false,
-      note: null,
-      added_at: new Date().toISOString(),
-      opened_at: null,
-      viewed_at: null,
-      collection_ids: [],
-    };
     setBusy(true);
-    const ok = await insertVideo(video);
+    const video = await addVideo(parsed.value);
     setBusy(false);
-    if (ok) {
+    if (video) {
       toast("Ajoutée à « À regarder »", { description: describeVideo(video).title });
       onDone();
     }
