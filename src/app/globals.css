@@ -1,0 +1,133 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* Le mode sombre suit le réglage du système (iOS : Réglages › Luminosité). */
+@custom-variant dark (@media (prefers-color-scheme: dark));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-geist-sans);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-soft: var(--brand-soft);
+  --color-favorite: var(--favorite);
+  --shadow-card: var(--shadow-card);
+  --shadow-float: var(--shadow-float);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/*
+ * Design system ReelQueue
+ * Fond blanc cassé chaud, textes encre, un seul accent (indigo discret).
+ */
+:root {
+  --background: oklch(0.982 0.004 80);
+  --foreground: oklch(0.21 0.006 265);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.21 0.006 265);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.21 0.006 265);
+  --primary: oklch(0.21 0.006 265);
+  --primary-foreground: oklch(0.985 0.002 80);
+  --secondary: oklch(0.953 0.004 80);
+  --secondary-foreground: oklch(0.21 0.006 265);
+  --muted: oklch(0.953 0.004 80);
+  --muted-foreground: oklch(0.52 0.01 265);
+  --accent: oklch(0.953 0.004 80);
+  --accent-foreground: oklch(0.21 0.006 265);
+  --brand: oklch(0.52 0.14 268);
+  --brand-foreground: oklch(0.985 0.002 80);
+  --brand-soft: oklch(0.95 0.025 268);
+  --favorite: oklch(0.75 0.15 75);
+  --destructive: oklch(0.58 0.2 27);
+  --border: oklch(0.915 0.005 80);
+  --input: oklch(0.9 0.005 80);
+  --ring: oklch(0.62 0.1 268);
+  --platform-ink: oklch(0.3 0.02 265);
+  --radius: 0.75rem;
+  --shadow-card: 0 1px 2px oklch(0.2 0.01 265 / 0.05), 0 2px 8px -2px oklch(0.2 0.01 265 / 0.05);
+  --shadow-float: 0 6px 20px -4px oklch(0.35 0.12 268 / 0.45), 0 2px 6px oklch(0.2 0.01 265 / 0.12);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: oklch(0.165 0.005 265);
+    --foreground: oklch(0.95 0.004 80);
+    --card: oklch(0.205 0.006 265);
+    --card-foreground: oklch(0.95 0.004 80);
+    --popover: oklch(0.225 0.006 265);
+    --popover-foreground: oklch(0.95 0.004 80);
+    --primary: oklch(0.95 0.004 80);
+    --primary-foreground: oklch(0.2 0.006 265);
+    --secondary: oklch(0.26 0.006 265);
+    --secondary-foreground: oklch(0.95 0.004 80);
+    --muted: oklch(0.26 0.006 265);
+    --muted-foreground: oklch(0.7 0.01 265);
+    --accent: oklch(0.26 0.006 265);
+    --accent-foreground: oklch(0.95 0.004 80);
+    --brand: oklch(0.72 0.12 268);
+    --brand-foreground: oklch(0.18 0.02 268);
+    --brand-soft: oklch(0.3 0.05 268);
+    --favorite: oklch(0.8 0.14 80);
+    --destructive: oklch(0.7 0.18 25);
+    --border: oklch(1 0 0 / 9%);
+    --input: oklch(1 0 0 / 14%);
+    --ring: oklch(0.6 0.1 268);
+    --platform-ink: oklch(0.82 0.01 265);
+    --shadow-card: 0 1px 2px oklch(0 0 0 / 0.3);
+    --shadow-float: 0 6px 20px -4px oklch(0 0 0 / 0.6);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "cv11", "ss01";
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
