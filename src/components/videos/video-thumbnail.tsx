@@ -14,7 +14,16 @@ import { cn } from "@/lib/utils";
 // Miniatures en échec pendant la session : inutile de les redemander à chaque écran.
 const failedThumbnails = new Set<string>();
 
-export function VideoThumbnail({ video, className }: { video: Video; className?: string }) {
+export function VideoThumbnail({
+  video,
+  className,
+  showPlayBadge = false,
+}: {
+  video: Video;
+  className?: string;
+  /** Petit bouton lecture sur une vraie miniature. */
+  showPlayBadge?: boolean;
+}) {
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
   const { platformColor } = describeVideo(video);
   const src = video.thumbnail_url;
@@ -56,7 +65,16 @@ export function VideoThumbnail({ video, className }: { video: Video; className?:
           }}
           className="size-full object-cover"
         />
-      ) : (
+      ) : null}
+      {showImage && src && showPlayBadge ? (
+        <span
+          aria-hidden
+          className="absolute right-1.5 bottom-1.5 flex size-6 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur-sm"
+        >
+          <Play className="size-3 translate-x-px fill-current" />
+        </span>
+      ) : null}
+      {showImage && src ? null : (
         <div className="flex size-full items-center justify-center">
           <span className="flex size-8 items-center justify-center rounded-full bg-white/80 text-black/70 shadow-sm backdrop-blur-sm dark:bg-black/40 dark:text-white/90">
             <Play className="size-3.5 translate-x-px fill-current" />

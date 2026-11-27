@@ -27,7 +27,7 @@ depuis Safari, sur le même réseau Wi-Fi.
 | --- | --- | --- |
 | 1 | Projet, architecture, design system, navigation, écrans (données de démo locales) | ✅ |
 | 2 | Supabase : authentification, persistance, RLS, migrations, cache hors ligne | ✅ (migration à appliquer) |
-| 3 | Métadonnées (titre, miniature), partage depuis iOS, ouverture | à venir |
+| 3 | Métadonnées (titre, auteur, miniature) ✅ · lecteur intégré / aperçu ✅ · partage depuis iOS | en cours |
 | 4 | Retour dans l'app → statut « Vue » automatique, cas limites | à venir |
 | 5 | PWA : manifest, service worker, hors ligne, installation iOS | à venir |
 
@@ -112,5 +112,16 @@ Choix structurants :
   Web Share Target API ([WebKit #194593](https://bugs.webkit.org/show_bug.cgi?id=194593)).
   Elle sera déclarée pour Android ; sur iPhone, l'alternative prévue en phase 3 est un
   Raccourci iOS qui ouvre ReelQueue avec le lien, en plus du bouton « Coller ».
-- **Métadonnées Instagram** : l'oEmbed officiel d'Instagram exige un jeton d'application
-  Meta. Sans lui, ReelQueue affiche un titre et un visuel de repli et conserve le lien.
+- **Métadonnées Instagram** : depuis le 3 novembre 2025, l'API oEmbed de Meta ne renvoie
+  plus ni auteur ni miniature ([annonce](https://developers.facebook.com/blog/post/2025/04/08/oembed-updates/)).
+  Comme Meta le recommande, `/api/metadata` lit les balises Open Graph publiques de la
+  publication (page d'intégration officielle en secours), avec un agent HTTP identifié et
+  sans connexion. La légende devient le titre. Ce n'est pas une API garantie : en cas
+  d'échec, titre et visuel de repli s'affichent et le lien reste utilisable.
+- **Miniatures Instagram** : le CDN d'Instagram interdit l'affichage de ses images sur un
+  autre site et signe ses URL pour quelques jours. `/api/thumbnail/instagram/<code>` les
+  relaie à une adresse stable (cache HTTP seulement, rien n'est stocké).
+- **Lecture** : Instagram ne permet pas de lire un Reel hors de son application (le bouton
+  « Jouer » de son intégration officielle renvoie vers instagram.com). ReelQueue affiche
+  l'aperçu officiel et ouvre Instagram pour la lecture. YouTube, TikTok et Vimeo se lisent
+  dans l'app ; la vidéo passe en « Vue » si le lecteur reste ouvert au moins 10 s.

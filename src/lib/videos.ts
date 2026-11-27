@@ -1,5 +1,5 @@
 import type { Collection, Platform, Video, VideoKind } from "@/types";
-import { getPlatform, safeParseVideoUrl } from "@/lib/platforms";
+import { getEmbed, getPlatform, safeParseVideoUrl, type EmbedInfo } from "@/lib/platforms";
 
 const KIND_LABELS: Record<VideoKind, string> = {
   reel: "Reel",
@@ -17,6 +17,8 @@ export interface VideoDisplay {
   platformColor: string;
   kind: VideoKind;
   hostname: string;
+  /** Lecteur ou aperçu officiel disponible. */
+  embed: EmbedInfo | null;
 }
 
 // Les vidéos sont immuables dans le store : un WeakMap suffit à mémoriser l'affichage.
@@ -56,6 +58,7 @@ export function describeVideo(video: Video): VideoDisplay {
     platformColor: platform.color,
     kind,
     hostname,
+    embed: getEmbed(video.url),
   };
   displayCache.set(video, display);
   return display;

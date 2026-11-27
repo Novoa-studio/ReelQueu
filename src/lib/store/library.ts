@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import type { Collection, CollectionColor, CollectionPatch, Video, VideoPatch } from "@/types";
 import { createRepository, type LibraryRepository } from "@/lib/data";
 import type { ParsedVideoUrl } from "@/lib/platforms";
+import type { VideoMetadata } from "@/lib/metadata/types";
 import { createId } from "@/lib/ids";
 import { normalizeText } from "@/lib/videos";
 import { COLLECTION_NAME_MAX } from "@/lib/collections";
@@ -31,6 +32,8 @@ interface LibraryState {
   addVideo: (parsed: ParsedVideoUrl) => Promise<Video | null>;
   insertVideo: (video: Video) => Promise<boolean>;
   updateVideo: (id: string, patch: VideoPatch) => Promise<boolean>;
+  /** Complète silencieusement les champs vides (titre, auteur, miniature). */
+  applyMetadata: (id: string, metadata: VideoMetadata) => Promise<boolean>;
   /** Renvoie la vidéo supprimée (pour « Annuler »), ou null en cas d'échec. */
   deleteVideo: (id: string) => Promise<Video | null>;
   setVideoCollections: (videoId: string, collectionIds: string[]) => Promise<boolean>;
@@ -92,7 +95,8 @@ export const useLibrary = create<LibraryState>()((set, get) => {
   async function commit(
     apply: (state: LibraryState) => Partial<LibraryState>,
     persist: (repo: LibraryRepository) => Promise<void>,
-    failureMessage: string,
+    /** null : échec silencieux (tâches d'arrière-plan). */
+    failureMessage: string | null,
   ): Promise<boolean> {
     const repo = repository;
     if (!repo) return false;
@@ -106,7 +110,7 @@ export const useLibrary = create<LibraryState>()((set, get) => {
       return true;
     } catch (error) {
       if (repo === repository) set(before);
-      toast.error(failureMessage, { description: errorDescription(error) });
+      if (failureMessage) toast.error(failureMessage, { description: errorDescription(error) });
       return false;
     } finally {
       pendingMutations -= 1;
@@ -203,6 +207,21 @@ export const useLibrary = create<LibraryState>()((set, get) => {
         (s) => ({ videos: s.videos.map((v) => (v.id === id ? { ...v, ...patch } : v)) }),
         (repo) => repo.updateVideo(id, patch),
         "Modification non enregistrée",
+      );
+    },
+
+    applyMetadata(id, metadata) {
+      const video = get().videos.find((v) => v.id === id);
+      if (!video) return Promise.resolve(false);
+      const patch: VideoPatch = {};
+      if (!video.title && metadata.title) patch.title = metadata.title;
+      if (!video.creator && metadata.creator) patch.creator = metadata.creator;
+      if (!video.thumbnail_url && metadata.thumbnailUrl) patch.thumbnail_url = metadata.thumbnailUrl;
+      if (!Object.keys(patch).length) return Promise.resolve(true);
+      return commit(
+        (s) => ({ videos: s.videos.map((v) => (v.id === id ? { ...v, ...patch } : v)) }),
+        (repo) => repo.updateVideo(id, patch),
+        null,
       );
     },
 
