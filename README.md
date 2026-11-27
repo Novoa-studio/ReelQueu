@@ -140,6 +140,9 @@ Choix structurants :
   autre site et signe ses URL pour quelques jours. `/api/thumbnail/instagram/<code>` les
   relaie à une adresse stable (cache HTTP seulement, rien n'est stocké).
 - **Lecture** : Instagram ne permet pas de lire un Reel hors de son application (le bouton
-  « Jouer » de son intégration officielle renvoie vers instagram.com). ReelQueue affiche
-  l'aperçu officiel et ouvre Instagram pour la lecture. YouTube, TikTok et Vimeo se lisent
-  dans l'app ; la vidéo passe en « Vue » si le lecteur reste ouvert au moins 10 s.
+  « Jouer » de son intégration officielle renvoie vers instagram.com). La miniature d'un
+  Reel ouvre donc directement Instagram, qui le lit en plein écran ; l'aperçu officiel reste
+  dans le menu « ⋯ ». YouTube, TikTok et Vimeo se lisent dans un lecteur immersif plein
+  écran (plein écran système sur ordinateur et Android ; sur iPhone, Safari ne l'autorise
+  que pour une vidéo native, le lecteur occupe alors tout l'écran). La vidéo passe en
+  « Vue » si le lecteur reste ouvert au moins 10 s.

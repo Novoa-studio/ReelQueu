@@ -55,11 +55,13 @@ export const VideoCard = memo(function VideoCard({
 
   return (
     <article className="flex gap-3 rounded-2xl bg-card p-2.5 shadow-card ring-1 ring-border/70">
-      {display.embed ? (
+      {/* Lecture dans l'app si la plateforme le permet ; sinon (Instagram) la
+          miniature ouvre directement l'app d'origine, en plein écran. */}
+      {display.embed?.inline ? (
         <button
           type="button"
           onClick={() => openSheet({ type: "player", videoId: video.id })}
-          aria-label={`${display.embed.inline ? "Lire" : "Aperçu de"} « ${display.title} »`}
+          aria-label={`Lire « ${display.title} »`}
           className="shrink-0 rounded-[10px] outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
         >
           {thumbnail}
