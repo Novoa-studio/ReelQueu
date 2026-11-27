@@ -10,6 +10,7 @@ import { useSheetOpen, useUI } from "@/lib/store/ui";
 import { getEmbed, type EmbedInfo } from "@/lib/platforms";
 import { describeVideo } from "@/lib/videos";
 import { markViewed, recordOpen } from "@/lib/video-actions";
+import { trackOpen } from "@/lib/open-tracking";
 import { cn } from "@/lib/utils";
 
 /** Durée minimale de visionnage dans le lecteur avant le passage automatique en « Vue ». */
@@ -115,7 +116,7 @@ function PlayerActions({ video, embed, onDismiss }: { video: Video; embed: Embed
         target="_blank"
         rel="noopener noreferrer"
         onClick={() => {
-          recordOpen(video);
+          trackOpen(video);
           onDismiss();
         }}
         className={cn(
