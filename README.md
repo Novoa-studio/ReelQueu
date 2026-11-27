@@ -124,13 +124,14 @@ Choix structurants :
 - **Collage en un geste** (`lib/quick-add.ts`) : le bouton « + » lit le presse-papiers. Un
   lien de vidéo reconnu est ajouté directement (avec « Annuler ») ; un autre lien ouvre la
   feuille d'ajout pré-remplie ; sinon la feuille s'ouvre vide.
-- **Raccourci iOS** (page `/raccourci`) : l'utilisateur crée une clé personnelle (affichée
-  une fois, seule son empreinte SHA-256 est stockée) et un raccourci « Ajouter à
-  ReelQueue » qui envoie le lien partagé à `POST /api/share`
-  (`Authorization: Bearer <clé>`, corps JSON `{ "url": … }`). La route récupère titre,
-  auteur et miniature puis appelle la fonction `add_shared_video`, qui authentifie par la
-  clé : aucune clé secrète Supabase n'est nécessaire. Un Reel déjà vu revient dans « À
-  regarder ».
+- **Raccourci iOS** (page `/raccourci`) : l'utilisateur crée une **adresse personnelle**
+  `https://<site>/api/share/<clé>?url=` (affichée une fois ; seule l'empreinte SHA-256 de la clé
+  est stockée). Le raccourci tient en deux actions sans option : « Obtenir le contenu de l'URL »
+  avec cette adresse suivie de l'entrée partagée, puis « Afficher la notification ». La route
+  répond par une phrase en texte brut. Variante avec options conservée : `POST /api/share`
+  (`Authorization: Bearer <clé>`, corps JSON `{ "url": … }`). Dans les deux cas, la route
+  récupère titre, auteur et miniature puis appelle `add_shared_video`, qui authentifie par la
+  clé (aucune clé secrète Supabase nécessaire). Un Reel déjà vu revient dans « À regarder ».
 
 ## Limites connues sur iOS
 
