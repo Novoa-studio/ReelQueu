@@ -22,6 +22,8 @@ interface AuthState {
   recovery: boolean;
   init: () => void;
   signIn: (email: string, password: string) => Promise<AuthResult>;
+  /** Connexion (ou création de compte) avec Google ; le navigateur quitte la page en cas de succès. */
+  signInWithGoogle: () => Promise<AuthResult>;
   signUp: (email: string, password: string) => Promise<AuthResult & { needsConfirmation?: boolean }>;
   sendPasswordReset: (email: string) => Promise<AuthResult>;
   updatePassword: (password: string) => Promise<AuthResult>;
@@ -66,6 +68,31 @@ function redirectUrl(path: string) {
   return `${window.location.origin}${path}`;
 }
 
+let providerSettings: Promise<Record<string, boolean> | null> | null = null;
+
+/**
+ * Fournisseurs de connexion activés dans Supabase (endpoint public
+ * /auth/v1/settings). null si l'information est indisponible.
+ */
+export async function isProviderEnabled(provider: string): Promise<boolean | null> {
+  const url = process.env.REELQUEUE_SUPABASE_URL;
+  const key = process.env.REELQUEUE_SUPABASE_KEY;
+  if (!url || !key) return false;
+  providerSettings ??= fetch(`${url}/auth/v1/settings`, {
+    headers: { apikey: key },
+    signal: AbortSignal.timeout(6000),
+  })
+    .then((res) => (res.ok ? res.json() : null))
+    .then((data: { external?: Record<string, boolean> } | null) => data?.external ?? null)
+    .catch(() => null);
+  const external = await providerSettings;
+  if (!external) {
+    providerSettings = null; // nouvel essai la prochaine fois
+    return null;
+  }
+  return Boolean(external[provider]);
+}
+
 let initialized = false;
 
 export const useAuth = create<AuthState>()((set, get) => ({
@@ -99,6 +126,28 @@ export const useAuth = create<AuthState>()((set, get) => ({
     const supabase = getSupabase();
     if (!supabase) return { ok: false, message: "Supabase n’est pas configuré." };
     const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+    return error ? { ok: false, message: messageFor(error) } : { ok: true };
+  },
+
+  async signInWithGoogle() {
+    const supabase = getSupabase();
+    if (!supabase) return { ok: false, message: "Supabase n’est pas configuré." };
+    // Fournisseur désactivé : Supabase afficherait une page d'erreur brute.
+    const enabled = await isProviderEnabled("google");
+    if (enabled === false) {
+      return {
+        ok: false,
+        message:
+          "La connexion Google n’est pas encore activée (Supabase › Authentication › Providers › Google).",
+      };
+    }
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: redirectUrl("/login"),
+        queryParams: { prompt: "select_account" },
+      },
+    });
     return error ? { ok: false, message: messageFor(error) } : { ok: true };
   },
 

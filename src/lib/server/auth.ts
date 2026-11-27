@@ -1,9 +1,9 @@
 import "server-only";
 import { createClient } from "@supabase/supabase-js";
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SUPABASE_KEY =
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+// Résolues au build par next.config.ts, quel que soit le nom des variables d'environnement.
+const SUPABASE_URL = process.env.REELQUEUE_SUPABASE_URL;
+const SUPABASE_KEY = process.env.REELQUEUE_SUPABASE_KEY;
 
 /**
  * Réserve une route aux utilisateurs connectés (jeton Supabase dans

@@ -17,7 +17,7 @@ import { EMPTY_METADATA, instagramThumbnailPath, type VideoMetadata } from "./ty
  */
 
 /** Agent identifié honnêtement, comme un service d'aperçu de liens. */
-export const FETCH_USER_AGENT = "ReelQueue/1.0 (link preview; +https://reelqueu.vercel.app)";
+export const FETCH_USER_AGENT = "ReelQueue/1.0 (link preview; +https://reelqueue.vercel.app)";
 const TIMEOUT_MS = 6000;
 
 async function fetchText(url: string, accept = "text/html"): Promise<{ text: string; finalUrl: string } | null> {

@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "icons": "node scripts/generate-icons.mjs"
+    "icons": "node scripts/generate-icons.mjs",
+    "db:setup-sql": "node -e \"const fs=require('fs');const files=fs.readdirSync('supabase/migrations').filter(f=>f.endsWith('.sql')).sort();const head=fs.readFileSync('supabase/setup.sql','utf8').split('\\n').slice(0,10).join('\\n');fs.writeFileSync('supabase/setup.sql',head+'\\n'+files.map(f=>'\\n-- >>> supabase/migrations/'+f+'\\n\\n'+fs.readFileSync('supabase/migrations/'+f,'utf8')).join(''))\""
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.2",
