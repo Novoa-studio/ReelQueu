@@ -12,6 +12,8 @@ import { NoteSheet } from "@/components/videos/note-sheet";
 import { CollectionsSheet } from "@/components/videos/collections-sheet";
 import { CollectionFormSheet } from "@/components/collections/collection-form-sheet";
 import { AccountSheet } from "@/components/auth/account-sheet";
+import { PlayerSheet } from "@/components/videos/player-sheet";
+import { backfillMetadata } from "@/lib/enrichment";
 
 /** Délai minimal entre deux rechargements au retour dans l'application. */
 const REFRESH_AFTER_MS = 30_000;
@@ -39,6 +41,12 @@ export function ShellRuntime() {
       void useLibrary.getState().start(userId);
     }
   }, [authStatus, userId, router]);
+
+  // Vidéos enregistrées sans titre ni miniature : rattrapage discret après chargement.
+  const libraryStatus = useLibrary((s) => s.status);
+  useEffect(() => {
+    if (libraryStatus === "ready") void backfillMetadata();
+  }, [libraryStatus]);
 
   // Autre appareil, autre onglet : on resynchronise au retour et quand le réseau revient.
   useEffect(() => {
@@ -70,6 +78,7 @@ export function ShellRuntime() {
       <CollectionsSheet />
       <CollectionFormSheet />
       <AccountSheet />
+      <PlayerSheet />
     </>
   );
 }

@@ -1,4 +1,5 @@
 import type { Platform, VideoKind } from "@/types";
+import { instagramThumbnailPath } from "@/lib/metadata/types";
 
 /**
  * Registre des plateformes : détection, normalisation et informations
@@ -20,6 +21,18 @@ export interface ParsedVideoUrl {
 
 type PlatformMatch = Omit<ParsedVideoUrl, "url" | "platform">;
 
+export interface PlatformEmbed {
+  /** Lecteur ou aperçu officiel de la plateforme. */
+  url: (externalId: string) => string;
+  /**
+   * Lecture possible dans ReelQueue. Faux pour Instagram : son intégration
+   * officielle affiche la couverture mais renvoie vers Instagram pour lire.
+   */
+  inline: boolean;
+  /** Types de contenus intégrables (tous si absent). */
+  kinds?: VideoKind[];
+}
+
 export interface PlatformDefinition {
   id: Platform;
   label: string;
@@ -27,11 +40,8 @@ export interface PlatformDefinition {
   color: string;
   hosts: string[];
   parse?: (url: URL) => PlatformMatch | null;
-  /**
-   * URL d'intégration pour un futur lecteur intégré. Seules les plateformes
-   * qui autorisent officiellement l'embed sans authentification la déclarent.
-   */
-  embedUrl?: (externalId: string) => string;
+  /** Intégration officielle, déclarée seulement si la plateforme l'autorise sans authentification. */
+  embed?: PlatformEmbed;
 }
 
 const INSTAGRAM_RESERVED = new Set(["share", "stories", "explore", "accounts"]);
@@ -63,9 +73,10 @@ const instagram: PlatformDefinition = {
       // /p/{id} et /reel/{id} désignent le même média : une seule clé.
       canonicalUrl: `https://www.instagram.com/p/${id}/`,
       creator: user && !INSTAGRAM_RESERVED.has(user) ? `@${user}` : null,
-      thumbnailUrl: null,
+      thumbnailUrl: instagramThumbnailPath(id),
     };
   },
+  embed: { url: (id) => `https://www.instagram.com/p/${id}/embed/`, inline: false },
 };
 
 const tiktok: PlatformDefinition = {
@@ -105,6 +116,11 @@ const tiktok: PlatformDefinition = {
     }
     return null;
   },
+  embed: {
+    url: (id) => `https://www.tiktok.com/player/v1/${id}?autoplay=1&rel=0&description=1`,
+    inline: true,
+    kinds: ["video"],
+  },
 };
 
 const YOUTUBE_ID = /^[A-Za-z0-9_-]{11}$/;
@@ -138,7 +154,10 @@ const youtube: PlatformDefinition = {
       thumbnailUrl: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
     };
   },
-  embedUrl: (id) => `https://www.youtube-nocookie.com/embed/${id}`,
+  embed: {
+    url: (id) => `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&playsinline=1&rel=0`,
+    inline: true,
+  },
 };
 
 const facebook: PlatformDefinition = {
@@ -217,7 +236,10 @@ const vimeo: PlatformDefinition = {
       thumbnailUrl: null,
     };
   },
-  embedUrl: (id) => `https://player.vimeo.com/video/${id}`,
+  embed: {
+    url: (id) => `https://player.vimeo.com/video/${id}?autoplay=1&playsinline=1&title=0&byline=0`,
+    inline: true,
+  },
 };
 
 const other: PlatformDefinition = {
@@ -326,4 +348,24 @@ export function parseVideoUrl(input: string): ParseResult {
 export function safeParseVideoUrl(url: string): ParsedVideoUrl | null {
   const result = parseVideoUrl(url);
   return result.ok ? result.value : null;
+}
+
+export interface EmbedInfo {
+  src: string;
+  /** Lecture dans l'app (sinon simple aperçu qui renvoie vers la plateforme). */
+  inline: boolean;
+  /** Format vertical (Reel, Short, TikTok). */
+  portrait: boolean;
+}
+
+export function getEmbed(url: string): EmbedInfo | null {
+  const parsed = safeParseVideoUrl(url);
+  if (!parsed?.externalId) return null;
+  const embed = getPlatform(parsed.platform).embed;
+  if (!embed || (embed.kinds && !embed.kinds.includes(parsed.kind))) return null;
+  return {
+    src: embed.url(parsed.externalId),
+    inline: embed.inline,
+    portrait: parsed.kind === "reel" || parsed.kind === "short" || parsed.platform === "tiktok",
+  };
 }

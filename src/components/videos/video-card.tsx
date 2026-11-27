@@ -8,6 +8,8 @@ import { cn } from "@/lib/utils";
 import { collectionsOf, describeVideo, formatRelativeDate, isSeen } from "@/lib/videos";
 import { collectionColor } from "@/lib/collections";
 import { recordOpen } from "@/lib/video-actions";
+import { useUI } from "@/lib/store/ui";
+import { useEnrichment } from "@/lib/enrichment";
 import { PlatformDot } from "./platform-badge";
 import { VideoThumbnail } from "./video-thumbnail";
 import { VideoActionsMenu } from "./video-actions-menu";
@@ -29,6 +31,8 @@ export const VideoCard = memo(function VideoCard({
   showStatus = false,
 }: VideoCardProps) {
   const display = describeVideo(video);
+  const openSheet = useUI((s) => s.openSheet);
+  const enriching = useEnrichment((s) => Boolean(s.pending[video.id]));
   const videoCollections = collectionsOf(video, collections);
   const seen = isSeen(video);
   const dateIso = dateMode === "viewed" ? (video.viewed_at ?? video.added_at) : video.added_at;
@@ -46,11 +50,24 @@ export const VideoCard = memo(function VideoCard({
     onClick: () => recordOpen(video),
   } as const;
 
+  const thumbnail = <VideoThumbnail video={video} className="h-[104px] w-[78px]" showPlayBadge />;
+
   return (
     <article className="flex gap-3 rounded-2xl bg-card p-2.5 shadow-card ring-1 ring-border/70">
-      <a {...linkProps} tabIndex={-1} aria-hidden className="shrink-0">
-        <VideoThumbnail video={video} className="h-[104px] w-[78px]" />
-      </a>
+      {display.embed ? (
+        <button
+          type="button"
+          onClick={() => openSheet({ type: "player", videoId: video.id })}
+          aria-label={`${display.embed.inline ? "Lire" : "Aperçu de"} « ${display.title} »`}
+          className="shrink-0 rounded-[10px] outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+        >
+          {thumbnail}
+        </button>
+      ) : (
+        <a {...linkProps} tabIndex={-1} aria-hidden className="shrink-0">
+          {thumbnail}
+        </a>
+      )}
 
       <div className="flex min-w-0 flex-1 flex-col">
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -71,6 +88,7 @@ export const VideoCard = memo(function VideoCard({
           className={cn(
             "line-clamp-2 text-[15px] leading-snug font-medium tracking-[-0.005em]",
             display.isFallbackTitle && "text-foreground/75",
+            display.isFallbackTitle && enriching && "animate-pulse",
           )}
         >
           {display.title}

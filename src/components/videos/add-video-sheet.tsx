@@ -12,6 +12,7 @@ import { useSheetOpen, useUI } from "@/lib/store/ui";
 import { extractUrl, parseVideoUrl } from "@/lib/platforms";
 import { describeVideo, findDuplicate, formatRelativeDate } from "@/lib/videos";
 import { markPending } from "@/lib/video-actions";
+import { enrichVideo } from "@/lib/enrichment";
 import { PlatformBadge } from "./platform-badge";
 
 const KIND_HINTS: Record<string, string> = {
@@ -77,6 +78,8 @@ function AddVideoForm({ onDone }: { onDone: () => void }) {
     if (video) {
       toast("Ajoutée à « À regarder »", { description: describeVideo(video).title });
       onDone();
+      // Titre, auteur et miniature arrivent juste après, sans bloquer l'ajout.
+      void enrichVideo(video);
     }
   }
 

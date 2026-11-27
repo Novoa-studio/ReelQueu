@@ -3,7 +3,9 @@
 import {
   Check,
   Ellipsis,
+  Eye,
   FolderPlus,
+  Play,
   Link as LinkIcon,
   RotateCcw,
   Star,
@@ -21,6 +23,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useUI } from "@/lib/store/ui";
+import { describeVideo } from "@/lib/videos";
 import {
   copyLink,
   deleteVideo,
@@ -34,6 +37,7 @@ const itemClass = "gap-2.5 px-2.5 py-2 text-[15px] md:py-1.5 md:text-sm";
 export function VideoActionsMenu({ video }: { video: Video }) {
   const openSheet = useUI((s) => s.openSheet);
   const pending = video.status === "pending";
+  const embed = describeVideo(video).embed;
 
   return (
     // modal={false} : évite le conflit de verrouillage avec la feuille ouverte ensuite.
@@ -49,6 +53,22 @@ export function VideoActionsMenu({ video }: { video: Video }) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-64">
+        {embed ? (
+          <DropdownMenuItem
+            className={itemClass}
+            onSelect={() => openSheet({ type: "player", videoId: video.id })}
+          >
+            {embed.inline ? (
+              <>
+                <Play /> Lire ici
+              </>
+            ) : (
+              <>
+                <Eye /> Aperçu
+              </>
+            )}
+          </DropdownMenuItem>
+        ) : null}
         {pending ? (
           <DropdownMenuItem className={itemClass} onSelect={() => void markViewed(video)}>
             <Check /> Marquer comme vue
