@@ -4,7 +4,7 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
 export type SheetData =
-  | { type: "add" }
+  | { type: "add"; initialUrl?: string }
   | { type: "note"; videoId: string }
   | { type: "collections"; videoId: string }
   | { type: "collection-form"; collectionId?: string }

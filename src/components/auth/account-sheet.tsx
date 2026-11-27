@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { CloudCheck, HardDrive, LogOut } from "lucide-react";
+import Link from "next/link";
+import { ChevronRight, CloudCheck, HardDrive, LogOut, Share } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ResponsiveSheet } from "@/components/ui/responsive-sheet";
 import { useAuth } from "@/lib/store/auth";
@@ -64,6 +65,22 @@ export function AccountSheet() {
           </p>
         </div>
       </div>
+      <Link
+        href="/raccourci"
+        onClick={closeSheet}
+        className="mt-2 flex items-center gap-3 rounded-2xl px-3 py-3 transition-colors hover:bg-muted"
+      >
+        <span className="flex size-9 items-center justify-center rounded-xl bg-brand-soft text-brand">
+          <Share className="size-4" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block font-medium">Raccourci iOS</span>
+          <span className="block text-sm text-muted-foreground">
+            Ajouter un Reel depuis le menu Partager d’Instagram
+          </span>
+        </span>
+        <ChevronRight className="size-4 text-muted-foreground" />
+      </Link>
     </ResponsiveSheet>
   );
 }

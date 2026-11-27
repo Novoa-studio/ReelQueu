@@ -8,6 +8,7 @@ import { DemoNotice } from "@/components/common/demo-notice";
 import { EmptyState } from "@/components/common/empty-state";
 import { VideoList } from "@/components/videos/video-list";
 import { AccountButton } from "@/components/auth/account-sheet";
+import { quickAdd } from "@/lib/quick-add";
 import { useLibrary } from "@/lib/store/library";
 import { useUI } from "@/lib/store/ui";
 import { pluralize, sortVideos } from "@/lib/videos";
@@ -17,7 +18,6 @@ export function QueueView() {
   const videos = useLibrary((s) => s.videos);
   const sort = useUI((s) => s.queueSort);
   const toggleSort = useUI((s) => s.toggleQueueSort);
-  const openSheet = useUI((s) => s.openSheet);
 
   const queue = useMemo(
     () => sortVideos(videos.filter((v) => v.status === "pending"), sort),
@@ -65,7 +65,7 @@ export function QueueView() {
             description="Collez le lien d’un Reel Instagram pour le garder au chaud jusqu’à ce que vous ayez le temps."
             action={
               <Button
-                onClick={() => openSheet({ type: "add" })}
+                onClick={() => void quickAdd()}
                 className="rounded-full bg-brand px-4 text-brand-foreground hover:bg-brand/90"
               >
                 <Plus /> Ajouter une vidéo
