@@ -15,9 +15,9 @@ import { describeVideo } from "@/lib/videos";
  * la notification du Raccourci.
  */
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SUPABASE_KEY =
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+// Résolues au build par next.config.ts, quel que soit le nom des variables d'environnement.
+const SUPABASE_URL = process.env.REELQUEUE_SUPABASE_URL;
+const SUPABASE_KEY = process.env.REELQUEUE_SUPABASE_KEY;
 
 type ShareStatus = "added" | "duplicate" | "requeued" | "invalid_token";
 

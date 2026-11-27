@@ -36,15 +36,22 @@ et données de démonstration au premier lancement (bouton « Partir de zéro »
 
 ## Supabase
 
-1. Copier `.env.example` en `.env.local` et renseigner l'URL et la clé publique du projet.
-2. Appliquer le schéma : Supabase › SQL Editor › coller puis Run, **dans l'ordre** (scripts rejouables) :
-   1. [`supabase/migrations/20261125120000_initial_schema.sql`](supabase/migrations/20261125120000_initial_schema.sql)
-   2. [`supabase/migrations/20261127120000_share_tokens.sql`](supabase/migrations/20261127120000_share_tokens.sql)
-3. Authentication › URL Configuration : *Site URL* = URL de production, *Redirect URLs* =
-   `https://<prod>/**` et `http://localhost:3000/**`.
-4. Sur Vercel, les mêmes variables `NEXT_PUBLIC_SUPABASE_*` doivent exister.
+1. **Variables** : URL du projet et clé publique, dans `.env.local` en local (voir
+   `.env.example`) et sur Vercel. `next.config.ts` accepte tous les noms courants,
+   y compris ceux de l'intégration Vercel × Supabase : `NEXT_PUBLIC_SUPABASE_URL` ou
+   `SUPABASE_URL` (avec ou sans préfixe), et `…_PUBLISHABLE_KEY` ou `…_ANON_KEY`.
+   Après un changement de variable sur Vercel, il faut **redéployer** (valeurs lues au build).
+2. **Base** : Supabase › SQL Editor › coller [`supabase/setup.sql`](supabase/setup.sql) › Run.
+   Ce fichier réunit toutes les migrations de `supabase/migrations/` dans l'ordre et peut être
+   relancé sans risque (régénération : `npm run db:setup-sql`).
+3. **Adresses** : Authentication › URL Configuration : *Site URL* = `https://reelqueue.vercel.app`,
+   *Redirect URLs* = `https://reelqueue.vercel.app/**` et `http://localhost:3000/**`.
+4. **Connexion Google** (facultatif) : dans Google Cloud Console, créer un identifiant OAuth
+   « Application Web » avec l'URI de redirection `https://<projet>.supabase.co/auth/v1/callback`,
+   puis Supabase › Authentication › Providers › Google : activer et coller Client ID et Secret.
+   Tant que ce n'est pas fait, le bouton « Continuer avec Google » affiche un message clair.
 
-Authentification par e-mail et mot de passe (et non lien magique) : sur iPhone, une PWA
+Connexion par Google ou par e-mail et mot de passe (pas de lien magique) : sur iPhone, une PWA
 installée ne partage pas son stockage avec Safari, où s'ouvrent les liens reçus par e-mail.
 
 ## Stack

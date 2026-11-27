@@ -1,9 +1,8 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-// Références statiques : Next.js n'injecte les NEXT_PUBLIC_* que sous cette forme.
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SUPABASE_KEY =
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+// Résolues au build par next.config.ts, quel que soit le nom des variables d'environnement.
+const SUPABASE_URL = process.env.REELQUEUE_SUPABASE_URL;
+const SUPABASE_KEY = process.env.REELQUEUE_SUPABASE_KEY;
 
 /** Sans configuration, l'app fonctionne en mode local (données sur l'appareil). */
 export const isSupabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_KEY);
