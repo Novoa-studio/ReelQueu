@@ -7,7 +7,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { collectionsOf, describeVideo, formatRelativeDate, isSeen } from "@/lib/videos";
 import { collectionColor } from "@/lib/collections";
-import { recordOpen } from "@/lib/video-actions";
+import { trackOpen } from "@/lib/open-tracking";
 import { useUI } from "@/lib/store/ui";
 import { useEnrichment } from "@/lib/enrichment";
 import { PlatformDot } from "./platform-badge";
@@ -47,7 +47,8 @@ export const VideoCard = memo(function VideoCard({
     href: video.url,
     target: "_blank",
     rel: "noopener noreferrer",
-    onClick: () => recordOpen(video),
+    // Au retour dans ReelQueue, la vidéo passera en « Vue » (voir open-tracking).
+    onClick: () => trackOpen(video),
   } as const;
 
   const thumbnail = <VideoThumbnail video={video} className="h-[104px] w-[78px]" showPlayBadge />;

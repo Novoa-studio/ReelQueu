@@ -14,6 +14,7 @@ import { CollectionFormSheet } from "@/components/collections/collection-form-sh
 import { AccountSheet } from "@/components/auth/account-sheet";
 import { PlayerSheet } from "@/components/videos/player-sheet";
 import { backfillMetadata } from "@/lib/enrichment";
+import { initOpenTracking, resolveStaleOpens } from "@/lib/open-tracking";
 
 /** Délai minimal entre deux rechargements au retour dans l'application. */
 const REFRESH_AFTER_MS = 30_000;
@@ -42,10 +43,16 @@ export function ShellRuntime() {
     }
   }, [authStatus, userId, router]);
 
-  // Vidéos enregistrées sans titre ni miniature : rattrapage discret après chargement.
+  // Passage automatique en « Vue » au retour dans l'app après ouverture d'un lien.
+  useEffect(() => initOpenTracking(), []);
+
   const libraryStatus = useLibrary((s) => s.status);
   useEffect(() => {
-    if (libraryStatus === "ready") void backfillMetadata();
+    if (libraryStatus !== "ready") return;
+    // Ouvertures restées en attente (app fermée par le système pendant le visionnage).
+    resolveStaleOpens();
+    // Vidéos enregistrées sans titre ni miniature : rattrapage discret.
+    void backfillMetadata();
   }, [libraryStatus]);
 
   // Autre appareil, autre onglet : on resynchronise au retour et quand le réseau revient.

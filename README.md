@@ -28,7 +28,7 @@ depuis Safari, sur le même réseau Wi-Fi.
 | 1 | Projet, architecture, design system, navigation, écrans (données de démo locales) | ✅ |
 | 2 | Supabase : authentification, persistance, RLS, migrations, cache hors ligne | ✅ (migration à appliquer) |
 | 3 | Métadonnées (titre, auteur, miniature) ✅ · lecteur intégré / aperçu ✅ · partage depuis iOS | en cours |
-| 4 | Retour dans l'app → statut « Vue » automatique, cas limites | à venir |
+| 4 | Retour dans l'app → statut « Vue » automatique, cas limites | ✅ |
 | 5 | PWA : manifest, service worker, hors ligne, installation iOS | à venir |
 
 Sans variables Supabase, l'app tourne en **mode local** : données dans le `localStorage`
@@ -98,6 +98,12 @@ Choix structurants :
   que `url` garde le lien d'origine, celui qu'on ouvre.
 - **Ouverture par lien natif** (`<a target="_blank">`), plus fiable sur iOS pour
   basculer vers l'application d'origine.
+- **« Vue » automatique** (`lib/open-tracking.ts`) : au clic sur « Ouvrir », la vidéo est
+  notée ; quand l'utilisateur quitte l'app (`visibilitychange`, `blur`) puis revient
+  (`visible`, `focus`) après au moins 3 s, elle passe en « Vue » avec « Annuler ». Un retour
+  plus rapide est traité comme une ouverture accidentelle. Les ouvertures en attente sont
+  gardées sur l'appareil : si iOS ferme l'app pendant le visionnage, elles sont appliquées
+  au lancement suivant. « Vue » signifie « consultée », pas « regardée jusqu'au bout ».
 - **Lecteur intégré prévu, pas simulé.** Les plateformes qui autorisent l'embed
   déclarent `embedUrl` dans `lib/platforms.ts` ; aucun lecteur n'est affiché tant
   qu'il n'est pas implémenté.
