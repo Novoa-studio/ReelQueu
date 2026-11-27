@@ -9,6 +9,7 @@ import { useAuth } from "@/lib/store/auth";
 import { useLibrary } from "@/lib/store/library";
 import { useUI } from "@/lib/store/ui";
 import { AccountAvatar } from "@/components/auth/account-sheet";
+import { quickAdd } from "@/lib/quick-add";
 import { cn } from "@/lib/utils";
 import { NAV_ITEMS, isActive } from "./nav-items";
 import { Logo } from "./logo";
@@ -80,11 +81,11 @@ export function TabBar() {
 }
 
 export function AddFab() {
-  const openSheet = useUI((s) => s.openSheet);
   return (
     <button
       type="button"
-      onClick={() => openSheet({ type: "add" })}
+      // Collage en un geste : lit le presse-papiers (geste requis), sinon ouvre la feuille.
+      onClick={() => void quickAdd()}
       aria-label="Ajouter une vidéo"
       className="fixed right-4 bottom-[calc(env(safe-area-inset-bottom)+4.5rem)] z-40 flex size-14 items-center justify-center rounded-full bg-brand text-brand-foreground shadow-float transition-transform active:scale-95 md:hidden"
     >
@@ -110,7 +111,7 @@ function SidebarView({ pathname }: { pathname: string | null }) {
       </Link>
 
       <Button
-        onClick={() => openSheet({ type: "add" })}
+        onClick={() => void quickAdd()}
         className="h-9 justify-start gap-2 rounded-lg bg-brand px-3 text-brand-foreground hover:bg-brand/90"
       >
         <Plus /> Ajouter une vidéo

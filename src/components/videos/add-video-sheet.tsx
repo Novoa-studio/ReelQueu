@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, type FormEvent } from "react";
+import Link from "next/link";
 import { ClipboardPaste, CircleCheck, Info, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import type { Video } from "@/types";
@@ -27,6 +28,7 @@ export function AddVideoSheet() {
   const open = useSheetOpen("add");
   const sheetKey = useUI((s) => s.sheetKey);
   const closeSheet = useUI((s) => s.closeSheet);
+  const initialUrl = useUI((s) => (s.sheet?.type === "add" ? s.sheet.initialUrl : undefined));
 
   return (
     <ResponsiveSheet
@@ -35,13 +37,13 @@ export function AddVideoSheet() {
       title="Ajouter une vidéo"
       description="Collez le lien d’un Reel ou d’une publication Instagram. Les liens d’autres sites fonctionnent aussi."
     >
-      <AddVideoForm key={sheetKey} onDone={closeSheet} />
+      <AddVideoForm key={sheetKey} initialUrl={initialUrl} onDone={closeSheet} />
     </ResponsiveSheet>
   );
 }
 
-function AddVideoForm({ onDone }: { onDone: () => void }) {
-  const [value, setValue] = useState("");
+function AddVideoForm({ initialUrl, onDone }: { initialUrl?: string; onDone: () => void }) {
+  const [value, setValue] = useState(initialUrl ?? "");
   const [submitted, setSubmitted] = useState(false);
   const [busy, setBusy] = useState(false);
   const videos = useLibrary((s) => s.videos);
@@ -138,7 +140,10 @@ function AddVideoForm({ onDone }: { onDone: () => void }) {
           </p>
         ) : (
           <p className="text-muted-foreground">
-            Dans Instagram : bouton « Partager » (avion en papier), puis « Copier le lien ».
+            Dans Instagram : Partager › « Copier le lien ».{" "}
+            <Link href="/raccourci" onClick={onDone} className="font-medium text-brand hover:underline">
+              Ou ajoute ReelQueue au menu Partager
+            </Link>
           </p>
         )}
       </div>

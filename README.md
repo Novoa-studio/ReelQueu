@@ -37,9 +37,9 @@ et données de démonstration au premier lancement (bouton « Partir de zéro »
 ## Supabase
 
 1. Copier `.env.example` en `.env.local` et renseigner l'URL et la clé publique du projet.
-2. Appliquer le schéma : Supabase › SQL Editor › coller
-   [`supabase/migrations/20261125120000_initial_schema.sql`](supabase/migrations/20261125120000_initial_schema.sql) › Run
-   (script rejouable).
+2. Appliquer le schéma : Supabase › SQL Editor › coller puis Run, **dans l'ordre** (scripts rejouables) :
+   1. [`supabase/migrations/20261125120000_initial_schema.sql`](supabase/migrations/20261125120000_initial_schema.sql)
+   2. [`supabase/migrations/20261127120000_share_tokens.sql`](supabase/migrations/20261127120000_share_tokens.sql)
 3. Authentication › URL Configuration : *Site URL* = URL de production, *Redirect URLs* =
    `https://<prod>/**` et `http://localhost:3000/**`.
 4. Sur Vercel, les mêmes variables `NEXT_PUBLIC_SUPABASE_*` doivent exister.
@@ -112,12 +112,24 @@ Choix structurants :
   `usePathname` est placé sous `Suspense` à cause de la route dynamique
   `/collections/[id]`.
 
+## Ajouter une vidéo
+
+- **Collage en un geste** (`lib/quick-add.ts`) : le bouton « + » lit le presse-papiers. Un
+  lien de vidéo reconnu est ajouté directement (avec « Annuler ») ; un autre lien ouvre la
+  feuille d'ajout pré-remplie ; sinon la feuille s'ouvre vide.
+- **Raccourci iOS** (page `/raccourci`) : l'utilisateur crée une clé personnelle (affichée
+  une fois, seule son empreinte SHA-256 est stockée) et un raccourci « Ajouter à
+  ReelQueue » qui envoie le lien partagé à `POST /api/share`
+  (`Authorization: Bearer <clé>`, corps JSON `{ "url": … }`). La route récupère titre,
+  auteur et miniature puis appelle la fonction `add_shared_video`, qui authentifie par la
+  clé : aucune clé secrète Supabase n'est nécessaire. Un Reel déjà vu revient dans « À
+  regarder ».
+
 ## Limites connues sur iOS
 
 - **Partage natif vers une PWA impossible sur iOS** : Safari ne prend pas en charge la
   Web Share Target API ([WebKit #194593](https://bugs.webkit.org/show_bug.cgi?id=194593)).
-  Elle sera déclarée pour Android ; sur iPhone, l'alternative prévue en phase 3 est un
-  Raccourci iOS qui ouvre ReelQueue avec le lien, en plus du bouton « Coller ».
+  Sur iPhone, le Raccourci iOS (ci-dessus) la remplace ; le partage natif Android reste à faire.
 - **Métadonnées Instagram** : depuis le 3 novembre 2025, l'API oEmbed de Meta ne renvoie
   plus ni auteur ni miniature ([annonce](https://developers.facebook.com/blog/post/2025/04/08/oembed-updates/)).
   Comme Meta le recommande, `/api/metadata` lit les balises Open Graph publiques de la
