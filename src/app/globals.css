@@ -4,6 +4,8 @@
 
 /* Le mode sombre suit le réglage du système (iOS : Réglages › Luminosité). */
 @custom-variant dark (@media (prefers-color-scheme: dark));
+/* Écran de faible hauteur : téléphone en paysage. */
+@custom-variant short (@media (max-height: 500px));
 
 @theme inline {
   --color-background: var(--background);
