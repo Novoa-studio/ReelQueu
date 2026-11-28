@@ -29,6 +29,9 @@ export const MIN_AWAY_MS = 3000;
 const MAX_PENDING_AGE_MS = 12 * 3600 * 1000;
 const STORAGE_KEY = "reelqueue:pending-opens:v1";
 
+/** Émis après le passage en « Vue » au retour (detail.ids) : le mode cinéma enchaîne. */
+export const OPENED_VIEWED_EVENT = "reelqueue:opened-viewed";
+
 interface PendingOpen {
   videoId: string;
   openedAt: number;
@@ -105,6 +108,7 @@ async function markOpenedAsViewed(ids: string[]) {
       void useLibrary.getState().updateVideo(v.id, { status: v.status, viewed_at: v.viewed_at });
     }
   };
+  window.dispatchEvent(new CustomEvent(OPENED_VIEWED_EVENT, { detail: { ids: done.map((v) => v.id) } }));
   toast(done.length === 1 ? "Marquée comme vue" : `${done.length} vidéos marquées comme vues`, {
     description:
       done.length === 1

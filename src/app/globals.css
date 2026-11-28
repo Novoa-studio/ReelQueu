@@ -75,6 +75,17 @@
   --radius: 0.75rem;
   --shadow-card: 0 1px 2px oklch(0.2 0.01 265 / 0.05), 0 2px 8px -2px oklch(0.2 0.01 265 / 0.05);
   --shadow-float: 0 6px 20px -4px oklch(0.35 0.12 268 / 0.45), 0 2px 6px oklch(0.2 0.01 265 / 0.12);
+
+  /* Liquid glass : réservé aux commandes flottantes (barres, boutons, feuilles). */
+  --glass-tint: oklch(0.99 0.004 80 / 0.62);
+  --glass-border: oklch(1 0 0 / 0.65);
+  --glass-highlight: oklch(1 0 0 / 0.95);
+  --glass-lowlight: oklch(0.2 0.01 265 / 0.05);
+  --glass-shadow: 0 10px 30px -10px oklch(0.3 0.06 268 / 0.28), 0 2px 8px oklch(0.2 0.01 265 / 0.06);
+  /* Fond ambiant : halos très doux que le verre peut refléter. */
+  --ambient-a: oklch(0.72 0.12 268 / 0.16);
+  --ambient-b: oklch(0.8 0.1 350 / 0.12);
+  --ambient-c: oklch(0.85 0.08 200 / 0.1);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -104,6 +115,15 @@
     --platform-ink: oklch(0.82 0.01 265);
     --shadow-card: 0 1px 2px oklch(0 0 0 / 0.3);
     --shadow-float: 0 6px 20px -4px oklch(0 0 0 / 0.6);
+
+    --glass-tint: oklch(0.24 0.008 265 / 0.55);
+    --glass-border: oklch(1 0 0 / 0.12);
+    --glass-highlight: oklch(1 0 0 / 0.2);
+    --glass-lowlight: oklch(0 0 0 / 0.3);
+    --glass-shadow: 0 10px 30px -10px oklch(0 0 0 / 0.7), 0 2px 8px oklch(0 0 0 / 0.3);
+    --ambient-a: oklch(0.5 0.14 268 / 0.22);
+    --ambient-b: oklch(0.5 0.12 350 / 0.14);
+    --ambient-c: oklch(0.55 0.08 200 / 0.1);
   }
 }
 
@@ -125,6 +145,46 @@
   [role="button"]:not(:disabled) {
     cursor: pointer;
   }
+}
+
+/*
+ * Liquid glass : verre translucide, flou et saturé, avec un reflet sur
+ * l'arête haute. Ne pas l'appliquer aux contenus en liste (coût du flou).
+ */
+@utility glass {
+  background-color: var(--glass-tint);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    inset 0 1px 0 0 var(--glass-highlight),
+    inset 0 -1px 0 0 var(--glass-lowlight),
+    var(--glass-shadow);
+}
+
+/* Verre sombre, pour les commandes posées sur une image ou une vidéo. */
+@utility glass-dark {
+  background-color: oklch(0.18 0.01 265 / 0.38);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid oklch(1 0 0 / 0.16);
+  box-shadow:
+    inset 0 1px 0 0 oklch(1 0 0 / 0.22),
+    0 8px 24px -8px oklch(0 0 0 / 0.5);
+  color: white;
+}
+
+/* Bouton d'action principal en verre teinté de la couleur de la marque. */
+@utility glass-brand {
+  background-color: color-mix(in oklch, var(--brand) 82%, transparent);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid oklch(1 0 0 / 0.28);
+  box-shadow:
+    inset 0 1px 0 0 oklch(1 0 0 / 0.45),
+    inset 0 -1px 0 0 oklch(0 0 0 / 0.12),
+    var(--shadow-float);
+  color: var(--brand-foreground);
 }
 
 @utility scrollbar-none {

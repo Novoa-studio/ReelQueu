@@ -12,7 +12,7 @@ import { NoteSheet } from "@/components/videos/note-sheet";
 import { CollectionsSheet } from "@/components/videos/collections-sheet";
 import { CollectionFormSheet } from "@/components/collections/collection-form-sheet";
 import { AccountSheet } from "@/components/auth/account-sheet";
-import { PlayerSheet } from "@/components/videos/player-sheet";
+import { CinemaViewer } from "@/components/videos/cinema-viewer";
 import { backfillMetadata } from "@/lib/enrichment";
 import { initOpenTracking, resolveStaleOpens } from "@/lib/open-tracking";
 
@@ -85,7 +85,7 @@ export function ShellRuntime() {
       <CollectionsSheet />
       <CollectionFormSheet />
       <AccountSheet />
-      <PlayerSheet />
+      <CinemaViewer />
     </>
   );
 }

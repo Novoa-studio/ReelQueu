@@ -6,6 +6,7 @@ import { ChevronRight, Layers, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/app-shell/page-header";
+import { GlassIconButton } from "@/components/common/glass-button";
 import { EmptyState } from "@/components/common/empty-state";
 import { useLibrary } from "@/lib/store/library";
 import { useUI } from "@/lib/store/ui";
@@ -43,15 +44,9 @@ export function CollectionsView() {
           status === "ready" ? pluralize(collections.length, "collection", "collections") : " "
         }
         actions={
-          <Button
-            variant="ghost"
-            size="icon-lg"
-            className="rounded-full text-muted-foreground"
-            onClick={create}
-            aria-label="Nouvelle collection"
-          >
-            <Plus className="size-5" />
-          </Button>
+          <GlassIconButton onClick={create} aria-label="Nouvelle collection">
+            <Plus />
+          </GlassIconButton>
         }
       />
 

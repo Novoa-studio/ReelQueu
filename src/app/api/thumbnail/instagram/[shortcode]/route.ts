@@ -21,13 +21,15 @@ function notFound(maxAge: number) {
   });
 }
 
-export async function GET(_request: Request, ctx: RouteContext<"/api/thumbnail/instagram/[shortcode]">) {
+export async function GET(request: Request, ctx: RouteContext<"/api/thumbnail/instagram/[shortcode]">) {
   const { shortcode } = await ctx.params;
+  // m (~320 px) pour les listes, l (~640 px) pour les affiches et le mode cinéma.
+  const size = new URL(request.url).searchParams.get("size") === "l" ? "l" : "m";
   if (!SHORTCODE.test(shortcode)) return new Response(null, { status: 400 });
 
   let upstream: Response;
   try {
-    upstream = await fetch(`https://www.instagram.com/p/${shortcode}/media/?size=m`, {
+    upstream = await fetch(`https://www.instagram.com/p/${shortcode}/media/?size=${size}`, {
       headers: { "User-Agent": FETCH_USER_AGENT, Accept: "image/*" },
       redirect: "follow",
       signal: AbortSignal.timeout(6000),

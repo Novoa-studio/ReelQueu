@@ -2,10 +2,9 @@
 
 import {
   Check,
+  Clapperboard,
   Ellipsis,
-  Eye,
   FolderPlus,
-  Play,
   Link as LinkIcon,
   RotateCcw,
   Star,
@@ -23,7 +22,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useUI } from "@/lib/store/ui";
-import { describeVideo } from "@/lib/videos";
 import {
   copyLink,
   deleteVideo,
@@ -34,41 +32,45 @@ import {
 
 const itemClass = "gap-2.5 px-2.5 py-2 text-[15px] md:py-1.5 md:text-sm";
 
-export function VideoActionsMenu({ video }: { video: Video }) {
+export function VideoActionsMenu({
+  video,
+  overlay = false,
+}: {
+  video: Video;
+  /** Bouton en verre sombre, posé sur une affiche (vue en grille). */
+  overlay?: boolean;
+}) {
   const openSheet = useUI((s) => s.openSheet);
+  const openCinema = useUI((s) => s.openCinema);
   const pending = video.status === "pending";
-  const embed = describeVideo(video).embed;
 
   return (
     // modal={false} : évite le conflit de verrouillage avec la feuille ouverte ensuite.
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          aria-label="Actions"
-          className="text-muted-foreground hover:text-foreground"
-        >
-          <Ellipsis />
-        </Button>
+        {overlay ? (
+          <button
+            type="button"
+            aria-label="Actions"
+            className="glass-dark flex size-8 items-center justify-center rounded-full transition-transform active:scale-95"
+          >
+            <Ellipsis className="size-4" />
+          </button>
+        ) : (
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Actions"
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <Ellipsis />
+          </Button>
+        )}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-64">
-        {embed ? (
-          <DropdownMenuItem
-            className={itemClass}
-            onSelect={() => openSheet({ type: "player", videoId: video.id })}
-          >
-            {embed.inline ? (
-              <>
-                <Play /> Lire ici
-              </>
-            ) : (
-              <>
-                <Eye /> Aperçu
-              </>
-            )}
-          </DropdownMenuItem>
-        ) : null}
+        <DropdownMenuItem className={itemClass} onSelect={() => openCinema([video.id], video.id)}>
+          <Clapperboard /> Mode cinéma
+        </DropdownMenuItem>
         {pending ? (
           <DropdownMenuItem className={itemClass} onSelect={() => void markViewed(video)}>
             <Check /> Marquer comme vue

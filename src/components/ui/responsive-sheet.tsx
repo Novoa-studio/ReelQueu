@@ -45,7 +45,12 @@ export function ResponsiveSheet({
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className={cn("gap-5 sm:max-w-md", className)}>
+        <DialogContent
+          className={cn(
+            "gap-5 rounded-[26px] border-[var(--glass-border)] bg-popover/85 backdrop-blur-2xl sm:max-w-md",
+            className,
+          )}
+        >
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
             {description ? (
@@ -63,7 +68,13 @@ export function ResponsiveSheet({
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className={cn("pb-[env(safe-area-inset-bottom)]", className)}>
+      <DrawerContent
+        className={cn(
+          // Verre dépoli : le contenu reste deviné derrière la feuille.
+          "rounded-t-[28px] border-[var(--glass-border)] bg-popover/85 pb-[env(safe-area-inset-bottom)] backdrop-blur-2xl data-[vaul-drawer-direction=bottom]:rounded-t-[28px]",
+          className,
+        )}
+      >
         <DrawerHeader className="text-left">
           <DrawerTitle className="text-lg font-semibold">{title}</DrawerTitle>
           {description ? (

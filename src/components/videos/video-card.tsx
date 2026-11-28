@@ -22,6 +22,8 @@ interface VideoCardProps {
   dateMode?: CardDateMode;
   /** Affiche la pastille « Vue » (listes mêlant les statuts). */
   showStatus?: boolean;
+  /** Ouvre le mode cinéma sur cette vidéo (fourni par la liste). */
+  onOpen?: (id: string) => void;
 }
 
 export const VideoCard = memo(function VideoCard({
@@ -29,9 +31,10 @@ export const VideoCard = memo(function VideoCard({
   collections,
   dateMode = "added",
   showStatus = false,
+  onOpen,
 }: VideoCardProps) {
   const display = describeVideo(video);
-  const openSheet = useUI((s) => s.openSheet);
+  const openCinema = useUI((s) => s.openCinema);
   const enriching = useEnrichment((s) => Boolean(s.pending[video.id]));
   const videoCollections = collectionsOf(video, collections);
   const seen = isSeen(video);
@@ -54,23 +57,16 @@ export const VideoCard = memo(function VideoCard({
   const thumbnail = <VideoThumbnail video={video} className="h-[104px] w-[78px]" showPlayBadge />;
 
   return (
-    <article className="flex gap-3 rounded-2xl bg-card p-2.5 shadow-card ring-1 ring-border/70">
-      {/* Lecture dans l'app si la plateforme le permet ; sinon (Instagram) la
-          miniature ouvre directement l'app d'origine, en plein écran. */}
-      {display.embed?.inline ? (
-        <button
-          type="button"
-          onClick={() => openSheet({ type: "player", videoId: video.id })}
-          aria-label={`Lire « ${display.title} »`}
-          className="shrink-0 rounded-[10px] outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
-        >
-          {thumbnail}
-        </button>
-      ) : (
-        <a {...linkProps} tabIndex={-1} aria-hidden className="shrink-0">
-          {thumbnail}
-        </a>
-      )}
+    <article className="flex gap-3 rounded-2xl bg-card/85 p-2.5 shadow-card ring-1 ring-border/70 dark:bg-card/75">
+      {/* Miniature : mode cinéma sur la liste en cours ; « Ouvrir » ouvre directement l'app d'origine. */}
+      <button
+        type="button"
+        onClick={() => (onOpen ? onOpen(video.id) : openCinema([video.id], video.id))}
+        aria-label={`Regarder « ${display.title} »`}
+        className="shrink-0 rounded-[10px] outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+      >
+        {thumbnail}
+      </button>
 
       <div className="flex min-w-0 flex-1 flex-col">
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
