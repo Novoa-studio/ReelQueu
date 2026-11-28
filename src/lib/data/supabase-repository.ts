@@ -118,18 +118,24 @@ export class SupabaseRepository implements LibraryRepository {
   ) {}
 
   async load(): Promise<LibrarySnapshot> {
+    // Hors ligne avéré : le cache tout de suite, sans attendre les nouvelles
+    // tentatives automatiques de Supabase (environ 7 s au total).
+    if (typeof navigator !== "undefined" && navigator.onLine === false) return this.fromCache();
     try {
       const [videos, collections] = await Promise.all([this.fetchVideos(), this.fetchCollections()]);
       const snapshot = { videos, collections };
       writeSnapshot(this.userId, snapshot);
       return snapshot;
     } catch (error) {
-      if (error instanceof Error && error.message === "offline") {
-        const cached = readSnapshot(this.userId);
-        if (cached) return { videos: cached.videos, collections: cached.collections, stale: true };
-      }
+      if (error instanceof Error && error.message === "offline") return this.fromCache();
       throw error;
     }
+  }
+
+  private fromCache(): LibrarySnapshot {
+    const cached = readSnapshot(this.userId);
+    if (!cached) throw new Error("offline");
+    return { videos: cached.videos, collections: cached.collections, stale: true };
   }
 
   private async fetchVideos(): Promise<Video[]> {
