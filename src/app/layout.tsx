@@ -2,7 +2,19 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthBootstrap } from "@/components/auth/auth-bootstrap";
+import splashScreens from "@/lib/splash-screens.json";
 import "./globals.css";
+
+/**
+ * Écrans de démarrage iOS (images générées par `npm run icons`). iOS n'en
+ * affiche un que si la media query correspond exactement à l'écran.
+ */
+const startupImage = splashScreens.flatMap(({ width, height, ratio }) =>
+  (["light", "dark"] as const).map((theme) => ({
+    url: `/splash/${width}x${height}@${ratio}x-${theme}.png`,
+    media: `(device-width: ${width}px) and (device-height: ${height}px) and (-webkit-device-pixel-ratio: ${ratio}) and (orientation: portrait) and (prefers-color-scheme: ${theme})`,
+  })),
+);
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,8 +38,12 @@ export const metadata: Metadata = {
     capable: true,
     title: "ReelQueue",
     statusBarStyle: "default",
+    startupImage,
   },
   formatDetection: { telephone: false },
+  // Next.js n'émet que « mobile-web-app-capable » ; iOS lit encore la balise
+  // préfixée pour les écrans de démarrage.
+  other: { "apple-mobile-web-app-capable": "yes" },
 };
 
 export const viewport: Viewport = {
