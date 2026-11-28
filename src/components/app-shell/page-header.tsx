@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { ChevronLeft, Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { GlassIconButton } from "@/components/common/glass-button";
 import { cn } from "@/lib/utils";
 
 interface PageHeaderProps {
@@ -18,6 +18,10 @@ interface PageHeaderProps {
   className?: string;
 }
 
+/**
+ * En-tête collant : le contenu défile dessous, flouté, avec un bord inférieur
+ * fondu plutôt qu'une ligne (esprit liquid glass).
+ */
 export function PageHeader({
   title,
   subtitle,
@@ -31,7 +35,9 @@ export function PageHeader({
   return (
     <header
       className={cn(
-        "sticky top-0 z-30 -mx-4 bg-background/85 px-4 pt-[env(safe-area-inset-top)] backdrop-blur-xl md:-mx-8 md:px-8",
+        "sticky top-0 z-30 -mx-4 px-4 pt-[env(safe-area-inset-top)] md:-mx-8 md:px-8",
+        // Voile flou dont l'opacité décroît vers le bas.
+        "before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-background/70 before:backdrop-blur-xl before:[mask-image:linear-gradient(to_bottom,black_75%,transparent)]",
         className,
       )}
     >
@@ -46,24 +52,17 @@ export function PageHeader({
       ) : null}
       <div className={cn("flex items-end gap-3 pb-3", back ? "pt-1" : "pt-5 md:pt-8")}>
         <div className="min-w-0 flex-1">
-          <h1 className="truncate text-[28px] leading-tight font-semibold tracking-[-0.02em]">
-            {title}
-          </h1>
+          <h1 className="truncate text-[30px] leading-tight font-bold tracking-[-0.025em]">{title}</h1>
           {subtitle ? <p className="mt-0.5 text-sm text-muted-foreground">{subtitle}</p> : null}
         </div>
-        <div className="flex shrink-0 items-center gap-1 pb-0.5">
+        <div className="flex shrink-0 items-center gap-2 pb-0.5">
           {actions}
           {showSearch ? (
-            <Button
-              asChild
-              variant="ghost"
-              size="icon-lg"
-              className="rounded-full text-muted-foreground md:hidden"
-            >
+            <GlassIconButton asChild className="md:hidden">
               <Link href="/search" aria-label="Rechercher">
-                <Search className="size-5" />
+                <Search />
               </Link>
-            </Button>
+            </GlassIconButton>
           ) : null}
           {trailing}
         </div>

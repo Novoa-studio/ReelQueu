@@ -4,6 +4,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import { SearchX, Star } from "lucide-react";
 import { PLATFORMS, type Platform } from "@/types";
 import { PageHeader } from "@/components/app-shell/page-header";
+import { ViewModeToggle } from "@/components/common/glass-button";
 import { EmptyState } from "@/components/common/empty-state";
 import { SearchField } from "@/components/common/search-field";
 import { SegmentedControl } from "@/components/common/segmented-control";
@@ -92,6 +93,7 @@ export function SearchView() {
     <>
       <PageHeader
         title="Rechercher"
+        actions={<ViewModeToggle />}
         showSearch={false}
         subtitle={
           status === "ready"

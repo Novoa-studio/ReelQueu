@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { Library, SearchX } from "lucide-react";
 import { PageHeader } from "@/components/app-shell/page-header";
+import { ViewModeToggle } from "@/components/common/glass-button";
 import { EmptyState } from "@/components/common/empty-state";
 import { SearchField } from "@/components/common/search-field";
 import { VideoList } from "@/components/videos/video-list";
@@ -24,6 +25,7 @@ export function LibraryView() {
     <>
       <PageHeader
         title="Bibliothèque"
+        actions={<ViewModeToggle />}
         subtitle={
           status === "ready"
             ? `${pluralize(seen.length, "vidéo consultée", "vidéos consultées")}`

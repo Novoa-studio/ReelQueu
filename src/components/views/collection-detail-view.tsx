@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ResponsiveSheet } from "@/components/ui/responsive-sheet";
 import { PageHeader } from "@/components/app-shell/page-header";
+import { GlassIconButton, ViewModeToggle } from "@/components/common/glass-button";
 import { EmptyState } from "@/components/common/empty-state";
 import { SegmentedControl } from "@/components/common/segmented-control";
 import { VideoList } from "@/components/videos/video-list";
@@ -89,16 +90,13 @@ export function CollectionDetailView({ id }: { id: string }) {
         subtitle={collection ? pluralize(inCollection.length, "vidéo", "vidéos") : " "}
         actions={
           collection ? (
+            <>
+            <ViewModeToggle />
             <DropdownMenu modal={false}>
               <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon-lg"
-                  className="rounded-full text-muted-foreground"
-                  aria-label="Options de la collection"
-                >
-                  <Ellipsis className="size-5" />
-                </Button>
+                <GlassIconButton aria-label="Options de la collection">
+                  <Ellipsis />
+                </GlassIconButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-52">
                 <DropdownMenuItem
@@ -116,6 +114,7 @@ export function CollectionDetailView({ id }: { id: string }) {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            </>
           ) : null
         }
       >

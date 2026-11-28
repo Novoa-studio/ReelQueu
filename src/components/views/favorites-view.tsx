@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { Star } from "lucide-react";
 import { PageHeader } from "@/components/app-shell/page-header";
+import { ViewModeToggle } from "@/components/common/glass-button";
 import { EmptyState } from "@/components/common/empty-state";
 import { SegmentedControl } from "@/components/common/segmented-control";
 import { VideoList } from "@/components/videos/video-list";
@@ -30,6 +31,7 @@ export function FavoritesView() {
     <>
       <PageHeader
         title="Favoris"
+        actions={<ViewModeToggle />}
         subtitle={status === "ready" ? pluralize(favorites.length, "favori", "favoris") : " "}
       >
         <SegmentedControl

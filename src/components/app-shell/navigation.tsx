@@ -27,7 +27,7 @@ function usePendingCount() {
 }
 
 /* ----------------------------------------------------------------------------
- * Mobile : barre d'onglets inférieure + bouton d'ajout flottant
+ * Mobile : barre d'onglets flottante en verre + bouton d'ajout
  * ------------------------------------------------------------------------- */
 
 function TabBarView({ pathname }: { pathname: string | null }) {
@@ -35,25 +35,27 @@ function TabBarView({ pathname }: { pathname: string | null }) {
   return (
     <nav
       aria-label="Navigation principale"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-border/80 bg-background/85 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden"
+      className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex items-end justify-center gap-2.5 px-4 pb-[calc(env(safe-area-inset-bottom)+0.625rem)] md:hidden"
     >
-      <ul className="mx-auto grid h-14 max-w-md grid-cols-4">
+      <ul className="glass pointer-events-auto flex h-[62px] max-w-sm flex-1 items-center rounded-full px-1.5">
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
           const active = isActive(href, pathname);
           return (
-            <li key={href}>
+            <li key={href} className="h-full flex-1 py-1.5">
               <Link
                 href={href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "relative flex h-full flex-col items-center justify-center gap-0.5 text-[10.5px] font-medium transition-colors",
-                  active ? "text-brand" : "text-muted-foreground",
+                  "relative flex h-full flex-col items-center justify-center gap-0.5 rounded-full text-[10px] font-medium transition-all duration-200",
+                  active
+                    ? "bg-foreground/[0.07] text-brand dark:bg-white/10"
+                    : "text-foreground/60 hover:text-foreground",
                 )}
               >
                 <span className="relative">
-                  <Icon className="size-[22px]" strokeWidth={active ? 2.1 : 1.75} />
+                  <Icon className="size-[21px]" strokeWidth={active ? 2.2 : 1.8} />
                   {href === "/" && pendingCount ? (
-                    <span className="absolute -top-1.5 left-3.5 min-w-4 rounded-full bg-brand px-1 text-center text-[10px] leading-4 font-semibold text-brand-foreground">
+                    <span className="absolute -top-1.5 left-3.5 min-w-4 rounded-full bg-brand px-1 text-center text-[10px] leading-4 font-semibold text-brand-foreground ring-2 ring-[var(--glass-tint)]">
                       {pendingCount > 99 ? "99+" : pendingCount}
                     </span>
                   ) : null}
@@ -64,6 +66,15 @@ function TabBarView({ pathname }: { pathname: string | null }) {
           );
         })}
       </ul>
+      <button
+        type="button"
+        // Collage en un geste : lit le presse-papiers (geste requis), sinon ouvre la feuille.
+        onClick={() => void quickAdd()}
+        aria-label="Ajouter une vidéo"
+        className="glass-brand pointer-events-auto flex size-[62px] shrink-0 items-center justify-center rounded-full transition-transform active:scale-95"
+      >
+        <Plus className="size-6" strokeWidth={2.25} />
+      </button>
     </nav>
   );
 }
@@ -80,19 +91,6 @@ export function TabBar() {
   );
 }
 
-export function AddFab() {
-  return (
-    <button
-      type="button"
-      // Collage en un geste : lit le presse-papiers (geste requis), sinon ouvre la feuille.
-      onClick={() => void quickAdd()}
-      aria-label="Ajouter une vidéo"
-      className="fixed right-4 bottom-[calc(env(safe-area-inset-bottom)+4.5rem)] z-40 flex size-14 items-center justify-center rounded-full bg-brand text-brand-foreground shadow-float transition-transform active:scale-95 md:hidden"
-    >
-      <Plus className="size-6" strokeWidth={2.25} />
-    </button>
-  );
-}
 
 /* ----------------------------------------------------------------------------
  * Desktop : barre latérale
@@ -105,7 +103,7 @@ function SidebarView({ pathname }: { pathname: string | null }) {
   const searchActive = isActive("/search", pathname);
 
   return (
-    <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col gap-6 border-r border-border/80 px-3 py-5 md:flex">
+    <aside className="glass sticky top-3 m-3 mr-0 hidden h-[calc(100dvh-1.5rem)] w-60 shrink-0 flex-col gap-6 rounded-[28px] px-3 py-5 md:flex">
       <Link href="/" className="px-2">
         <Logo />
       </Link>
