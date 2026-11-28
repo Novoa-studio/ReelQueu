@@ -54,8 +54,7 @@ export function VideoList({ videos, empty, dateMode, showStatus }: VideoListProp
     return (
       <ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
         {videos.map((video) => (
-          // content-visibility : seules les affiches visibles sont peintes.
-          <li key={video.id} className="[contain-intrinsic-size:auto_320px] [content-visibility:auto]">
+          <li key={video.id}>
             <VideoTile video={video} onOpen={onOpen} showStatus={showStatus} />
           </li>
         ))}
@@ -66,9 +65,7 @@ export function VideoList({ videos, empty, dateMode, showStatus }: VideoListProp
   return (
     <ul className="flex flex-col gap-2.5">
       {videos.map((video) => (
-        // content-visibility : le navigateur ne peint que les cartes visibles,
-        // ce qui garde le défilement fluide avec plusieurs centaines d'éléments.
-        <li key={video.id} className="[contain-intrinsic-size:auto_126px] [content-visibility:auto]">
+        <li key={video.id}>
           <VideoCard
             video={video}
             collections={collections}
