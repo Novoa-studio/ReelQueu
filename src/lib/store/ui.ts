@@ -65,13 +65,19 @@ export const useUI = create<UIState>()(
       queueSort: "added_desc",
       toggleQueueSort: () =>
         set((s) => ({ queueSort: s.queueSort === "added_desc" ? "added_asc" : "added_desc" })),
-      viewMode: "list",
+      viewMode: "grid",
       toggleViewMode: () => set((s) => ({ viewMode: s.viewMode === "list" ? "grid" : "list" })),
       demoNoticeDismissed: false,
       dismissDemoNotice: () => set({ demoNoticeDismissed: true }),
     }),
     {
       name: "reelqueue:ui:v1",
+      // v1 : la grille devient l'affichage par défaut (bascule unique des préférences existantes).
+      version: 1,
+      migrate: (persisted, version) => {
+        const state = (persisted ?? {}) as Record<string, unknown>;
+        return version < 1 ? { ...state, viewMode: "grid" } : state;
+      },
       storage: createJSONStorage(() => localStorage),
       partialize: (s) => ({
         queueSort: s.queueSort,

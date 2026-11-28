@@ -5,37 +5,65 @@ import { Check, Star, StickyNote } from "lucide-react";
 import type { Video } from "@/types";
 import { describeVideo, formatRelativeDate, isSeen } from "@/lib/videos";
 import { useEnrichment } from "@/lib/enrichment";
+import { trackOpen } from "@/lib/open-tracking";
 import { cn } from "@/lib/utils";
 import { VideoThumbnail } from "./video-thumbnail";
 import { VideoActionsMenu } from "./video-actions-menu";
 
 interface VideoTileProps {
   video: Video;
-  /** Ouvre le mode cinéma sur cette vidéo. */
+  /** Ouvre le mode cinéma sur cette vidéo (plateformes lisibles sur place). */
   onOpen: (id: string) => void;
   showStatus?: boolean;
 }
 
-/** Vue en grille : affiche verticale 9:16, infos en surimpression. */
+/**
+ * Vue en grille : affiche verticale 9:16, infos en surimpression. Toucher un
+ * Reel Instagram l'ouvre directement dans Instagram ; YouTube, TikTok et Vimeo
+ * s'ouvrent dans le mode cinéma.
+ */
 export const VideoTile = memo(function VideoTile({ video, onOpen, showStatus = false }: VideoTileProps) {
   const display = describeVideo(video);
   const enriching = useEnrichment((s) => Boolean(s.pending[video.id]));
   const seen = isSeen(video);
+  const inline = Boolean(display.embed?.inline);
+  const pressableClass = "absolute inset-0 outline-none focus-visible:ring-3 focus-visible:ring-ring/60";
+  const visual = (
+    <>
+      <VideoThumbnail
+        video={video}
+        fit="smart"
+        className="size-full rounded-none transition-transform duration-500 group-hover:scale-[1.03]"
+      />
+      <span className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
+    </>
+  );
 
   return (
     <article className="group relative aspect-[9/16] overflow-hidden rounded-[22px] bg-muted shadow-card ring-1 ring-black/5 dark:ring-white/10">
-      <button
-        type="button"
-        onClick={() => onOpen(video.id)}
-        aria-label={`Regarder « ${display.title} »`}
-        className="absolute inset-0 outline-none focus-visible:ring-3 focus-visible:ring-ring/60"
-      >
-        <VideoThumbnail
-          video={video}
-          className="size-full rounded-none transition-transform duration-500 group-hover:scale-[1.03]"
-        />
-        <span className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
-      </button>
+      {/* Instagram (pas de lecture hors de l'app) : ouverture directe, « Vue » au retour.
+          Plateformes lisibles sur place : mode cinéma. */}
+      {inline ? (
+        <button
+          type="button"
+          onClick={() => onOpen(video.id)}
+          aria-label={`Regarder « ${display.title} »`}
+          className={pressableClass}
+        >
+          {visual}
+        </button>
+      ) : (
+        <a
+          href={video.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => trackOpen(video)}
+          aria-label={`Regarder « ${display.title} » dans ${display.platformLabel}`}
+          className={pressableClass}
+        >
+          {visual}
+        </a>
+      )}
 
       {/* Haut : plateforme et actions */}
       <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-2">

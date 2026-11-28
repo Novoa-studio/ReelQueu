@@ -14,20 +14,32 @@ import { cn } from "@/lib/utils";
 // Miniatures en échec pendant la session : inutile de les redemander à chaque écran.
 const failedThumbnails = new Set<string>();
 
+/** Au-delà de ce rapport largeur / hauteur, l'image n'est pas « verticale ». */
+const PORTRAIT_MAX_RATIO = 0.7;
+
 export function VideoThumbnail({
   video,
   className,
   showPlayBadge = false,
+  fit = "cover",
 }: {
   video: Video;
   className?: string;
   /** Petit bouton lecture sur une vraie miniature. */
   showPlayBadge?: boolean;
+  /**
+   * cover : l'image remplit le cadre (rognée si besoin).
+   * smart : une image plus large que le cadre (YouTube, publication carrée)
+   *         s'affiche en entier, sur une copie floutée d'elle-même.
+   */
+  fit?: "cover" | "smart";
 }) {
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  const [wideSrc, setWideSrc] = useState<string | null>(null);
   const { platformColor } = describeVideo(video);
   const src = video.thumbnail_url;
   const showImage = Boolean(src) && failedSrc !== src && !failedThumbnails.has(src ?? "");
+  const contain = fit === "smart" && wideSrc === src;
 
   function markFailed(url: string) {
     failedThumbnails.add(url);
@@ -45,6 +57,17 @@ export function VideoThumbnail({
             }
       }
     >
+      {showImage && src && contain ? (
+        // Fond : la même image, floutée, pour habiller les bandes autour d'une image large.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={src}
+          alt=""
+          aria-hidden
+          referrerPolicy="no-referrer"
+          className="absolute inset-0 size-full scale-125 object-cover opacity-70 blur-2xl"
+        />
+      ) : null}
       {showImage && src ? (
         // Miniatures hébergées par des domaines tiers et variables : next/image n'apporte rien ici.
         // eslint-disable-next-line @next/next/no-img-element
@@ -56,14 +79,18 @@ export function VideoThumbnail({
           referrerPolicy="no-referrer"
           onError={() => markFailed(src)}
           onLoad={(e) => {
+            const img = e.currentTarget;
             // YouTube répond par une image grise 120×90 (statut 404) pour une
             // vidéo supprimée ou inexistante : on la traite comme une erreur.
-            const img = e.currentTarget;
             if (src.includes("ytimg.com") && img.naturalWidth === 120 && img.naturalHeight === 90) {
               markFailed(src);
+              return;
+            }
+            if (fit === "smart" && img.naturalHeight > 0 && img.naturalWidth / img.naturalHeight > PORTRAIT_MAX_RATIO) {
+              setWideSrc(src);
             }
           }}
-          className="size-full object-cover"
+          className={cn("relative size-full", contain ? "object-contain" : "object-cover")}
         />
       ) : null}
       {showImage && src && showPlayBadge ? (
