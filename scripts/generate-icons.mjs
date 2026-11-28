@@ -11,8 +11,10 @@
  *   public/icons/icon-192.png     manifest, usage « any » (coins arrondis)
  *   public/icons/icon-512.png     manifest, usage « any »
  *   public/icons/icon-maskable-512.png  manifest, usage « maskable » (Android)
+ *   public/splash/*.png           écrans de démarrage iOS, clair et sombre
+ *                                 (un par taille d'écran de src/lib/splash-screens.json)
  */
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
@@ -26,24 +28,29 @@ const BRAND_DARK = "#344da2"; // oklch(0.45 0.14 268)
 
 /**
  * Dessin sur une grille de 1024. Pictogramme : 576 × 624 px centré.
- * @param {{ radius: number, scale: number }} options
+ * @param {{ radius: number, scale: number, id?: string }} options
  *   radius : arrondi du fond (0 = plein cadre, l'OS applique son propre masque)
  *   scale  : taille du pictogramme (1 = 56 % de la largeur)
+ *   id     : identifiant du dégradé (unique si le dessin est imbriqué)
  */
-function iconSvg({ radius, scale }) {
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+function iconBody({ radius, scale, id = "bg" }) {
+  return `<defs>
+    <linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="${BRAND_LIGHT}"/>
       <stop offset="1" stop-color="${BRAND_DARK}"/>
     </linearGradient>
   </defs>
-  <rect width="1024" height="1024" rx="${radius}" fill="url(#bg)"/>
+  <rect width="1024" height="1024" rx="${radius}" fill="url(#${id})"/>
   <g transform="translate(512 512) scale(${scale}) translate(-512 -520)">
     <rect x="288" y="208" width="448" height="96" rx="48" fill="#fff" fill-opacity="0.5"/>
     <rect x="224" y="352" width="576" height="480" rx="128" fill="#fff"/>
     <path d="M462 500 L462 684 L628 592 Z" fill="${BRAND}" stroke="${BRAND}" stroke-width="44" stroke-linejoin="round"/>
-  </g>
+  </g>`;
+}
+
+function iconSvg(options) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  ${iconBody(options)}
 </svg>
 `;
 }
@@ -114,3 +121,100 @@ await write(
   "public/icons/icon-maskable-512.png",
   await png(VARIANTS.maskable, 512, { opaque: true }),
 );
+
+// --- Écrans de démarrage iOS ------------------------------------------------
+// iOS n'affiche un écran de démarrage que si une image correspond exactement à
+// l'écran (taille, densité, orientation) : une image par modèle d'iPhone, en
+// clair et en sombre. Même fond et mêmes halos que l'application (globals.css).
+
+const SPLASH_THEMES = {
+  light: {
+    background: "#faf9f6",
+    // [couleur, opacité] : --ambient-a/b/c
+    halos: [
+      ["#84a1f0", 0.16],
+      ["#efa3c7", 0.12],
+      ["#8cdee2", 0.1],
+    ],
+    shadow: [BRAND_DARK, 0.3],
+  },
+  dark: {
+    background: "#0d0e11",
+    halos: [
+      ["#415cb2", 0.22],
+      ["#94436d", 0.14],
+      ["#298084", 0.1],
+    ],
+    shadow: [BRAND, 0.45], // halo lumineux plutôt qu'une ombre
+  },
+};
+
+/** Taille de l'icône sur l'écran de démarrage, en points (comme une app native). */
+const SPLASH_ICON_PT = 112;
+
+/**
+ * @param {{ width: number, height: number, ratio: number }} screen  points CSS × densité
+ * @param {keyof typeof SPLASH_THEMES} theme
+ */
+function splashSvg({ width, height, ratio }, theme) {
+  const { background, halos, shadow } = SPLASH_THEMES[theme];
+  const W = width * ratio;
+  const H = height * ratio;
+  // Halos : radial-gradient(55% 38% at 8% 0%), (45% 32% at 100% 12%), (60% 40% at 50% 105%)
+  const ellipses = [
+    [0.08, 0, 0.55, 0.38],
+    [1, 0.12, 0.45, 0.32],
+    [0.5, 1.05, 0.6, 0.4],
+  ];
+  const size = SPLASH_ICON_PT * ratio;
+  const x = (W - size) / 2;
+  const y = H * 0.47 - size / 2;
+  const radius = 228; // sur la grille de 1024, comme l'icône « rounded »
+  const blur = 18 * ratio;
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+  <defs>
+    ${halos
+      .map(
+        ([color, opacity], i) => `<radialGradient id="halo${i}">
+      <stop offset="0" stop-color="${color}" stop-opacity="${opacity}"/>
+      <stop offset="0.7" stop-color="${color}" stop-opacity="0"/>
+    </radialGradient>`,
+      )
+      .join("\n    ")}
+    <filter id="soft" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="${blur}"/>
+    </filter>
+  </defs>
+  <rect width="${W}" height="${H}" fill="${background}"/>
+  ${ellipses
+    .map(
+      ([cx, cy, rx, ry], i) =>
+        `<ellipse cx="${cx * W}" cy="${cy * H}" rx="${rx * W}" ry="${ry * H}" fill="url(#halo${i})"/>`,
+    )
+    .join("\n  ")}
+  <rect x="${x + size * 0.08}" y="${y + size * 0.14}" width="${size * 0.84}" height="${size * 0.84}"
+    rx="${(radius / 1024) * size}" fill="${shadow[0]}" fill-opacity="${shadow[1]}" filter="url(#soft)"/>
+  <g transform="translate(${x} ${y}) scale(${size / 1024})">
+    ${iconBody({ radius, scale: 1, id: "icon" })}
+  </g>
+</svg>
+`;
+}
+
+const screens = JSON.parse(
+  await readFile(join(root, "src/lib/splash-screens.json"), "utf8"),
+);
+for (const screen of screens) {
+  for (const theme of /** @type {const} */ (["light", "dark"])) {
+    const data = await sharp(Buffer.from(splashSvg(screen, theme)))
+      .flatten({ background: SPLASH_THEMES[theme].background })
+      .removeAlpha()
+      .png({ compressionLevel: 9 })
+      .toBuffer();
+    await write(
+      `public/splash/${screen.width}x${screen.height}@${screen.ratio}x-${theme}.png`,
+      data,
+    );
+  }
+}
