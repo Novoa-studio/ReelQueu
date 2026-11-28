@@ -1,14 +1,48 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#627ace"/>
-      <stop offset="1" stop-color="#344da2"/>
+    <linearGradient id="rq-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7686ff"/>
+      <stop offset="0.5" stop-color="#4f5de4"/>
+      <stop offset="1" stop-color="#3424ad"/>
     </linearGradient>
+    <radialGradient id="rq-cyan" cx="0" cy="0" r="0.55">
+      <stop offset="0" stop-color="#7ae8ff" stop-opacity="0.4"/>
+      <stop offset="1" stop-color="#7ae8ff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="rq-pink" cx="1" cy="1" r="0.75">
+      <stop offset="0" stop-color="#ff6fb1" stop-opacity="0.65"/>
+      <stop offset="1" stop-color="#ff6fb1" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="rq-rim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.6"/>
+      <stop offset="0.4" stop-color="#fff" stop-opacity="0.06"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0.2"/>
+    </linearGradient>
+    <linearGradient id="rq-glass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.65"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0.2"/>
+    </linearGradient>
+    <linearGradient id="rq-card" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e6e8ff"/>
+    </linearGradient>
+    <linearGradient id="rq-play" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5a68ff"/>
+      <stop offset="1" stop-color="#8139ee"/>
+    </linearGradient>
+    <filter id="rq-blur" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="30"/>
+    </filter>
   </defs>
-  <rect width="1024" height="1024" rx="224" fill="url(#bg)"/>
-  <g transform="translate(512 512) scale(1.12) translate(-512 -520)">
-    <rect x="288" y="208" width="448" height="96" rx="48" fill="#fff" fill-opacity="0.5"/>
-    <rect x="224" y="352" width="576" height="480" rx="128" fill="#fff"/>
-    <path d="M462 500 L462 684 L628 592 Z" fill="#4662b9" stroke="#4662b9" stroke-width="44" stroke-linejoin="round"/>
+  <rect width="1024" height="1024" rx="224" fill="url(#rq-bg)"/>
+  <rect width="1024" height="1024" rx="224" fill="url(#rq-cyan)"/>
+  <rect width="1024" height="1024" rx="224" fill="url(#rq-pink)"/>
+  <rect x="5" y="5" width="1014" height="1014" rx="219" fill="none" stroke="url(#rq-rim)" stroke-width="10"/>
+  <g transform="translate(512 512) scale(1.0080000000000002) translate(-512 -520)">
+    <rect x="316" y="196" width="392" height="572" rx="106" fill="#fff" fill-opacity="0.22" transform="rotate(-13 512 900)"/>
+    <rect x="316" y="196" width="392" height="572" rx="106" fill="url(#rq-glass)" transform="rotate(10 512 900)"/>
+    <rect x="314" y="268" width="396" height="600" rx="110" fill="#1a1260" fill-opacity="0.55" filter="url(#rq-blur)"/>
+    <rect x="296" y="226" width="432" height="612" rx="114" fill="url(#rq-card)"/>
+    <path d="M468 452 L468 612 L607 532 Z" fill="url(#rq-play)" stroke="url(#rq-play)" stroke-width="48" stroke-linejoin="round"/>
   </g>
 </svg>

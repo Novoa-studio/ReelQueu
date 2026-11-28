@@ -1,6 +1,6 @@
 /**
  * Génère les icônes de l'application à partir d'un seul dessin vectoriel
- * (le pictogramme ReelQueue : une file de cartes avec un bouton lecture).
+ * (le pictogramme ReelQueue : des Reels en éventail avec un bouton lecture).
  *
  *   npm run icons
  *
@@ -21,30 +21,76 @@ import sharp from "sharp";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-// Couleurs de la marque (équivalents sRGB des tokens OKLCH de globals.css).
-const BRAND = "#4662b9"; // oklch(0.52 0.14 268)
-const BRAND_LIGHT = "#627ace"; // oklch(0.60 0.13 270)
-const BRAND_DARK = "#344da2"; // oklch(0.45 0.14 268)
+// Couleurs de l'icône : l'indigo de la marque (--brand dans globals.css), en
+// plus lumineux pour l'écran d'accueil.
+const BRAND = "#4f5de4";
+const BRAND_LIGHT = "#7686ff";
+const BRAND_DARK = "#3424ad";
+const PLAY_START = "#5a68ff";
+const PLAY_END = "#8139ee";
 
 /**
- * Dessin sur une grille de 1024. Pictogramme : 576 × 624 px centré.
+ * Dessin sur une grille de 1024 : des Reels en éventail (la file), la carte
+ * de devant porte le bouton lecture. Fond indigo avec les halos rose et cyan de
+ * l'application, cartes en verre, reflet sur le bord (style « liquid glass »).
+ * Le composant LogoMark (src/components/app-shell/logo.tsx) reprend ce dessin.
  * @param {{ radius: number, scale: number, id?: string }} options
  *   radius : arrondi du fond (0 = plein cadre, l'OS applique son propre masque)
- *   scale  : taille du pictogramme (1 = 56 % de la largeur)
- *   id     : identifiant du dégradé (unique si le dessin est imbriqué)
+ *   scale  : taille du pictogramme (1 = environ 62 % de la largeur)
+ *   id     : préfixe des identifiants (unique si le dessin est imbriqué)
  */
-function iconBody({ radius, scale, id = "bg" }) {
+function iconBody({ radius, scale, id = "rq" }) {
+  const ref = (name) => `${id}-${name}`;
+  // Reflet du bord : seulement quand on dessine nous-mêmes les coins arrondis.
+  const rim =
+    radius > 0
+      ? `<rect x="5" y="5" width="1014" height="1014" rx="${radius - 5}" fill="none" stroke="url(#${ref("rim")})" stroke-width="10"/>`
+      : "";
   return `<defs>
-    <linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="${ref("bg")}" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="${BRAND_LIGHT}"/>
+      <stop offset="0.5" stop-color="${BRAND}"/>
       <stop offset="1" stop-color="${BRAND_DARK}"/>
     </linearGradient>
+    <radialGradient id="${ref("cyan")}" cx="0" cy="0" r="0.55">
+      <stop offset="0" stop-color="#7ae8ff" stop-opacity="0.4"/>
+      <stop offset="1" stop-color="#7ae8ff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="${ref("pink")}" cx="1" cy="1" r="0.75">
+      <stop offset="0" stop-color="#ff6fb1" stop-opacity="0.65"/>
+      <stop offset="1" stop-color="#ff6fb1" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="${ref("rim")}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.6"/>
+      <stop offset="0.4" stop-color="#fff" stop-opacity="0.06"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0.2"/>
+    </linearGradient>
+    <linearGradient id="${ref("glass")}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.65"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0.2"/>
+    </linearGradient>
+    <linearGradient id="${ref("card")}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e6e8ff"/>
+    </linearGradient>
+    <linearGradient id="${ref("play")}" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="${PLAY_START}"/>
+      <stop offset="1" stop-color="${PLAY_END}"/>
+    </linearGradient>
+    <filter id="${ref("blur")}" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="30"/>
+    </filter>
   </defs>
-  <rect width="1024" height="1024" rx="${radius}" fill="url(#${id})"/>
-  <g transform="translate(512 512) scale(${scale}) translate(-512 -520)">
-    <rect x="288" y="208" width="448" height="96" rx="48" fill="#fff" fill-opacity="0.5"/>
-    <rect x="224" y="352" width="576" height="480" rx="128" fill="#fff"/>
-    <path d="M462 500 L462 684 L628 592 Z" fill="${BRAND}" stroke="${BRAND}" stroke-width="44" stroke-linejoin="round"/>
+  <rect width="1024" height="1024" rx="${radius}" fill="url(#${ref("bg")})"/>
+  <rect width="1024" height="1024" rx="${radius}" fill="url(#${ref("cyan")})"/>
+  <rect width="1024" height="1024" rx="${radius}" fill="url(#${ref("pink")})"/>
+  ${rim}
+  <g transform="translate(512 512) scale(${0.9 * scale}) translate(-512 -520)">
+    <rect x="316" y="196" width="392" height="572" rx="106" fill="#fff" fill-opacity="0.22" transform="rotate(-13 512 900)"/>
+    <rect x="316" y="196" width="392" height="572" rx="106" fill="url(#${ref("glass")})" transform="rotate(10 512 900)"/>
+    <rect x="314" y="268" width="396" height="600" rx="110" fill="#1a1260" fill-opacity="0.55" filter="url(#${ref("blur")})"/>
+    <rect x="296" y="226" width="432" height="612" rx="114" fill="url(#${ref("card")})"/>
+    <path d="M468 452 L468 612 L607 532 Z" fill="url(#${ref("play")})" stroke="url(#${ref("play")})" stroke-width="48" stroke-linejoin="round"/>
   </g>`;
 }
 
