@@ -28,6 +28,8 @@ interface LibraryState {
   reload: () => Promise<void>;
   /** Rechargement silencieux (retour dans l'app, retour du réseau). */
   refresh: () => Promise<void>;
+  /** Actualisation demandée (tirer pour actualiser) : false en cas d'échec. */
+  sync: () => Promise<boolean>;
   reset: () => void;
   addVideo: (parsed: ParsedVideoUrl) => Promise<Video | null>;
   insertVideo: (video: Video) => Promise<boolean>;
@@ -117,15 +119,16 @@ export const useLibrary = create<LibraryState>()((set, get) => {
     }
   }
 
-  async function fetchInto(silent: boolean) {
+  /** false si le chargement a échoué (true aussi quand le résultat est ignoré). */
+  async function fetchInto(silent: boolean): Promise<boolean> {
     const repo = repository;
-    if (!repo) return;
+    if (!repo) return false;
     const version = mutationVersion;
     if (!silent) set({ status: "loading" });
     try {
       const snapshot = await repo.load();
       // Résultat obsolète : utilisateur changé ou mutation survenue entre-temps.
-      if (repo !== repository || (silent && version !== mutationVersion)) return;
+      if (repo !== repository || (silent && version !== mutationVersion)) return true;
       set({
         status: "ready",
         videos: snapshot.videos,
@@ -134,9 +137,11 @@ export const useLibrary = create<LibraryState>()((set, get) => {
         stale: snapshot.stale ?? false,
         lastLoadedAt: Date.now(),
       });
+      return true;
     } catch {
-      if (repo !== repository) return;
+      if (repo !== repository) return true;
       if (!silent) set({ status: "error" });
+      return false;
     }
   }
 
@@ -155,11 +160,22 @@ export const useLibrary = create<LibraryState>()((set, get) => {
       await fetchInto(false);
     },
 
-    reload: () => fetchInto(false),
+    async reload() {
+      await fetchInto(false);
+    },
 
     async refresh() {
       if (get().status !== "ready" || pendingMutations > 0) return;
       await fetchInto(true);
+    },
+
+    async sync() {
+      const { status } = get();
+      if (status === "error") return fetchInto(false);
+      // Chargement déjà en cours, ou modification en cours d'enregistrement
+      // (recharger maintenant écraserait l'état optimiste) : rien à faire.
+      if (status !== "ready" || pendingMutations > 0) return true;
+      return fetchInto(true);
     },
 
     reset() {

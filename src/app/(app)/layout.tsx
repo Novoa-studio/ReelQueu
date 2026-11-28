@@ -1,5 +1,6 @@
 import { Sidebar, TabBar } from "@/components/app-shell/navigation";
 import { ShellRuntime } from "@/components/app-shell/shell-runtime";
+import { PullToRefresh } from "@/components/app-shell/pull-to-refresh";
 
 /**
  * Coque de l'application : barre latérale (desktop), barre d'onglets flottante
@@ -19,9 +20,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         }}
       />
       <Sidebar />
-      <main className="min-w-0 flex-1 pb-[calc(env(safe-area-inset-bottom)+6.5rem)] md:pb-16">
+      <PullToRefresh className="min-w-0 flex-1 pb-[calc(env(safe-area-inset-bottom)+6.5rem)] md:pb-16">
         <div className="mx-auto w-full max-w-2xl px-4 md:px-8 lg:max-w-4xl">{children}</div>
-      </main>
+      </PullToRefresh>
       <TabBar />
       <ShellRuntime />
     </div>
