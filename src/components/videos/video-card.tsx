@@ -57,7 +57,7 @@ export const VideoCard = memo(function VideoCard({
   const thumbnail = <VideoThumbnail video={video} className="h-[104px] w-[78px]" showPlayBadge />;
 
   return (
-    <article className="flex gap-3 rounded-2xl bg-card/85 p-2.5 shadow-card ring-1 ring-border/70 dark:bg-card/75">
+    <article className="flex gap-3 rounded-2xl bg-card/85 p-2.5 shadow-card ring-1 ring-border/70 group-data-[swiping=true]/swipe:bg-card dark:bg-card/75">
       {/* Miniature : mode cinéma sur la liste en cours ; « Ouvrir » ouvre directement l'app d'origine. */}
       <button
         type="button"

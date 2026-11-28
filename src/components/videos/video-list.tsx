@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, type ReactNode } from "react";
+import { useCallback, useEffect, type ReactNode } from "react";
+import { toast } from "sonner";
 import { TriangleExclamationPoint } from "lucide-react";
 import type { Video } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -10,6 +11,9 @@ import { useLibrary } from "@/lib/store/library";
 import { useUI } from "@/lib/store/ui";
 import { VideoCard, type CardDateMode } from "./video-card";
 import { VideoTile } from "./video-tile";
+import { SwipeableRow } from "./swipeable-row";
+
+const SWIPE_TIP_KEY = "reelqueue:tip-swipe:v1";
 
 interface VideoListProps {
   videos: Video[];
@@ -28,6 +32,23 @@ export function VideoList({ videos, empty, dateMode, showStatus }: VideoListProp
     (id: string) => openCinema(videos.map((v) => v.id), id),
     [openCinema, videos],
   );
+
+  // Astuce affichée une seule fois, sur écran tactile, à la première liste non vide.
+  const showSwipeTip = status === "ready" && !grid && videos.length > 0;
+  useEffect(() => {
+    if (!showSwipeTip) return;
+    try {
+      if (!window.matchMedia("(pointer: coarse)").matches) return;
+      if (window.localStorage.getItem(SWIPE_TIP_KEY)) return;
+      window.localStorage.setItem(SWIPE_TIP_KEY, "1");
+    } catch {
+      return;
+    }
+    toast("Astuce", {
+      description: "Glisse une carte vers la droite pour la marquer vue, vers la gauche pour la supprimer.",
+      duration: 6000,
+    });
+  }, [showSwipeTip]);
 
   if (status === "idle" || status === "loading") return <VideoListSkeleton grid={grid} />;
   if (status === "error") {
@@ -66,13 +87,15 @@ export function VideoList({ videos, empty, dateMode, showStatus }: VideoListProp
     <ul className="flex flex-col gap-2.5">
       {videos.map((video) => (
         <li key={video.id}>
-          <VideoCard
-            video={video}
-            collections={collections}
-            dateMode={dateMode}
-            showStatus={showStatus}
-            onOpen={onOpen}
-          />
+          <SwipeableRow video={video}>
+            <VideoCard
+              video={video}
+              collections={collections}
+              dateMode={dateMode}
+              showStatus={showStatus}
+              onOpen={onOpen}
+            />
+          </SwipeableRow>
         </li>
       ))}
     </ul>
